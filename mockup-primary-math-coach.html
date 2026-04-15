@@ -1,0 +1,1771 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mockup – Ứng dụng học Toán tiểu học có AI</title>
+  <style>
+    /* ── Design tokens ──────────────────────────────────── */
+    :root {
+      --primary:        #4f6ef7;
+      --primary-dark:   #3a57e8;
+      --primary-light:  #eef1fe;
+      --success:        #22c55e;
+      --success-light:  #dcfce7;
+      --warning:        #f59e0b;
+      --warning-light:  #fef3c7;
+      --danger:         #ef4444;
+      --danger-light:   #fee2e2;
+      --neutral-50:     #f9fafb;
+      --neutral-100:    #f3f4f6;
+      --neutral-200:    #e5e7eb;
+      --neutral-300:    #d1d5db;
+      --neutral-400:    #9ca3af;
+      --neutral-500:    #6b7280;
+      --neutral-700:    #374151;
+      --neutral-800:    #1e2431;
+      --neutral-900:    #111827;
+      --white:          #ffffff;
+      --radius-sm:      6px;
+      --radius-md:      10px;
+      --radius-lg:      14px;
+      --radius-xl:      20px;
+      --shadow-sm:      0 1px 3px rgba(0,0,0,.07), 0 1px 2px rgba(0,0,0,.05);
+      --shadow-md:      0 4px 12px rgba(0,0,0,.08), 0 2px 4px rgba(0,0,0,.04);
+      --shadow-lg:      0 10px 24px rgba(0,0,0,.10);
+      --font:           "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    /* ── Reset ──────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font);
+      background: var(--neutral-100);
+      color: var(--neutral-900);
+      line-height: 1.6;
+      font-size: 15px;
+    }
+
+    /* ── Page wrapper ───────────────────────────────────── */
+    .page {
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 24px 20px;
+    }
+
+    .page-note {
+      background: var(--white);
+      border: 1.5px dashed var(--neutral-300);
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+      margin-bottom: 28px;
+      font-size: 13px;
+      color: var(--neutral-500);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .page-note strong { color: var(--neutral-700); }
+
+    /* ── Screen wrapper ─────────────────────────────────── */
+    .screen {
+      background: var(--white);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-md);
+      margin-bottom: 36px;
+      overflow: hidden;
+    }
+
+    .screen-header {
+      padding: 10px 20px;
+      background: var(--neutral-800);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .screen-header-dot {
+      width: 11px; height: 11px;
+      border-radius: 50%;
+      background: var(--neutral-500);
+      flex-shrink: 0;
+    }
+    .screen-header-dot:nth-child(1) { background: #ef4444; }
+    .screen-header-dot:nth-child(2) { background: #f59e0b; }
+    .screen-header-dot:nth-child(3) { background: #22c55e; }
+    .screen-header-label {
+      font-size: 12px;
+      color: var(--neutral-400);
+      margin-left: 4px;
+      letter-spacing: .4px;
+    }
+    .screen-header-badge {
+      margin-left: auto;
+      font-size: 11px;
+      color: var(--neutral-500);
+      background: var(--neutral-700);
+      padding: 2px 8px;
+      border-radius: 20px;
+      letter-spacing: .3px;
+    }
+
+    .screen-body { padding: 0; }
+
+    /* ── App topbar ─────────────────────────────────────── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 28px;
+      background: var(--white);
+      border-bottom: 1px solid var(--neutral-200);
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .topbar-brand {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--primary);
+      letter-spacing: -.3px;
+    }
+    .topbar-brand span { color: var(--neutral-800); }
+    .topbar-nav { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .topbar-link {
+      font-size: 13px;
+      color: var(--neutral-500);
+      padding: 6px 12px;
+      border-radius: var(--radius-sm);
+      cursor: default;
+    }
+    .topbar-link:hover, .topbar-link.active { background: var(--primary-light); color: var(--primary); }
+    .topbar-avatar {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      background: var(--primary-light);
+      border: 2px solid var(--primary);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; color: var(--primary);
+      flex-shrink: 0;
+    }
+
+    /* ── Content area ───────────────────────────────────── */
+    .content {
+      padding: 28px 28px 32px;
+    }
+    .content-narrow {
+      max-width: 800px;
+    }
+    .content-center {
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    /* ── Section heading ────────────────────────────────── */
+    .section-heading {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      color: var(--neutral-400);
+      margin-bottom: 12px;
+    }
+    .page-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--neutral-900);
+      margin-bottom: 4px;
+      letter-spacing: -.3px;
+    }
+    .page-subtitle {
+      font-size: 14px;
+      color: var(--neutral-500);
+      margin-bottom: 24px;
+    }
+
+    /* ── Grid layouts ───────────────────────────────────── */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 16px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 16px; }
+    .grid-sidebar { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .mb-16 { margin-bottom: 16px; }
+    .mb-24 { margin-bottom: 24px; }
+
+    /* ── Card ───────────────────────────────────────────── */
+    .card {
+      background: var(--white);
+      border: 1px solid var(--neutral-200);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+    }
+    .card-flat {
+      background: var(--neutral-50);
+      border: 1px solid var(--neutral-200);
+      border-radius: var(--radius-md);
+      padding: 16px;
+    }
+    .card-primary {
+      background: var(--primary-light);
+      border: 1.5px solid #c7d2fe;
+      border-radius: var(--radius-lg);
+      padding: 20px;
+    }
+    .card-success {
+      background: var(--success-light);
+      border: 1.5px solid #bbf7d0;
+      border-radius: var(--radius-lg);
+      padding: 20px;
+    }
+    .card-warning {
+      background: var(--warning-light);
+      border: 1.5px solid #fde68a;
+      border-radius: var(--radius-lg);
+      padding: 20px;
+    }
+    .card h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--neutral-700);
+      margin-bottom: 10px;
+    }
+    .card-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--neutral-700);
+      margin-bottom: 10px;
+    }
+
+    /* ── Stat card ──────────────────────────────────────── */
+    .stat-card {
+      background: var(--white);
+      border: 1px solid var(--neutral-200);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+    }
+    .stat-label {
+      font-size: 12px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      color: var(--neutral-400);
+      margin-bottom: 6px;
+    }
+    .stat-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--neutral-900);
+      letter-spacing: -.5px;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .stat-sub {
+      font-size: 12px;
+      color: var(--neutral-400);
+    }
+    .stat-positive { color: var(--success); }
+    .stat-warning  { color: var(--warning); }
+
+    /* ── Badge ──────────────────────────────────────────── */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: .2px;
+    }
+    .badge-primary { background: var(--primary-light); color: var(--primary); }
+    .badge-success { background: var(--success-light); color: #15803d; }
+    .badge-warning { background: var(--warning-light); color: #92400e; }
+    .badge-danger  { background: var(--danger-light);  color: #b91c1c; }
+    .badge-neutral { background: var(--neutral-100);   color: var(--neutral-500); }
+
+    /* ── Buttons ────────────────────────────────────────── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 10px 20px;
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: default;
+      border: none;
+      transition: none;
+      white-space: nowrap;
+      letter-spacing: .1px;
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: var(--white);
+      box-shadow: 0 2px 8px rgba(79,110,247,.35);
+    }
+    .btn-primary-lg {
+      background: var(--primary);
+      color: var(--white);
+      padding: 13px 28px;
+      font-size: 15px;
+      box-shadow: 0 2px 10px rgba(79,110,247,.35);
+      border-radius: var(--radius-md);
+    }
+    .btn-secondary {
+      background: var(--neutral-100);
+      color: var(--neutral-700);
+      border: 1px solid var(--neutral-200);
+    }
+    .btn-outline {
+      background: transparent;
+      color: var(--primary);
+      border: 1.5px solid var(--primary);
+    }
+    .btn-ghost {
+      background: transparent;
+      color: var(--neutral-500);
+    }
+    .btn-success {
+      background: var(--success);
+      color: var(--white);
+      box-shadow: 0 2px 8px rgba(34,197,94,.3);
+    }
+    .btn-sm {
+      padding: 6px 14px;
+      font-size: 13px;
+    }
+    .btn-icon {
+      width: 36px; height: 36px;
+      padding: 0;
+      border-radius: var(--radius-sm);
+      font-size: 16px;
+      background: var(--neutral-100);
+      color: var(--neutral-500);
+      border: 1px solid var(--neutral-200);
+    }
+    .btns { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .btns-end { justify-content: flex-end; }
+    .btns-center { justify-content: center; }
+
+    /* ── Form elements ──────────────────────────────────── */
+    .field { margin-bottom: 16px; }
+    .field:last-child { margin-bottom: 0; }
+    .field-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--neutral-700);
+      margin-bottom: 6px;
+    }
+    .field-hint {
+      font-size: 12px;
+      color: var(--neutral-400);
+      margin-top: 4px;
+    }
+    .input, .select, .textarea {
+      width: 100%;
+      padding: 10px 13px;
+      border: 1.5px solid var(--neutral-200);
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      font-family: var(--font);
+      color: var(--neutral-900);
+      background: var(--white);
+      outline: none;
+    }
+    .input:focus, .select:focus, .textarea:focus {
+      border-color: var(--primary);
+    }
+    .textarea { min-height: 90px; resize: vertical; }
+    .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    /* ── Chip / option pill ─────────────────────────────── */
+    .option-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+    .option-pill {
+      padding: 8px 18px;
+      border: 1.5px solid var(--neutral-200);
+      border-radius: 24px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--neutral-600);
+      background: var(--white);
+      cursor: default;
+    }
+    .option-pill.selected {
+      border-color: var(--primary);
+      background: var(--primary-light);
+      color: var(--primary);
+    }
+
+    /* ── Progress bar ───────────────────────────────────── */
+    .progress-wrap {
+      margin-bottom: 24px;
+    }
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--neutral-400);
+      margin-bottom: 6px;
+    }
+    .progress-track {
+      height: 8px;
+      background: var(--neutral-200);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--primary);
+      border-radius: 8px;
+      width: 50%;
+    }
+    .progress-dots {
+      display: flex;
+      gap: 6px;
+      margin-top: 8px;
+    }
+    .progress-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--neutral-200);
+    }
+    .progress-dot.done { background: var(--primary); }
+    .progress-dot.current { background: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
+
+    /* ── Table ──────────────────────────────────────────── */
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    .table th {
+      text-align: left;
+      padding: 9px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+      color: var(--neutral-400);
+      background: var(--neutral-50);
+      border-bottom: 1px solid var(--neutral-200);
+    }
+    .table td {
+      padding: 11px 12px;
+      border-bottom: 1px solid var(--neutral-100);
+      color: var(--neutral-700);
+      vertical-align: top;
+    }
+    .table tr:last-child td { border-bottom: none; }
+    .table-wrap {
+      border: 1px solid var(--neutral-200);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+
+    /* ── Chart placeholder ──────────────────────────────── */
+    .chart-ph {
+      background: var(--neutral-50);
+      border: 1.5px dashed var(--neutral-200);
+      border-radius: var(--radius-md);
+      min-height: 150px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      color: var(--neutral-400);
+      font-size: 13px;
+    }
+    .chart-ph-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 6px;
+      height: 60px;
+    }
+    .chart-bar {
+      width: 20px;
+      background: var(--neutral-200);
+      border-radius: 3px 3px 0 0;
+    }
+    .chart-bar.accent { background: var(--primary); opacity: .45; }
+
+    /* ── Skill bar ──────────────────────────────────────── */
+    .skill-row { margin-bottom: 12px; }
+    .skill-row:last-child { margin-bottom: 0; }
+    .skill-label-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 4px;
+      font-size: 13px;
+    }
+    .skill-name { font-weight: 500; color: var(--neutral-700); }
+    .skill-pct  { font-size: 12px; color: var(--neutral-400); }
+    .skill-track { height: 6px; background: var(--neutral-200); border-radius: 6px; overflow: hidden; }
+    .skill-fill  { height: 100%; border-radius: 6px; }
+    .skill-fill.success { background: var(--success); }
+    .skill-fill.warning { background: var(--warning); }
+    .skill-fill.danger  { background: var(--danger); }
+
+    /* ── Divider ────────────────────────────────────────── */
+    .divider { border: none; border-top: 1px solid var(--neutral-200); margin: 20px 0; }
+
+    /* ── Empty state ────────────────────────────────────── */
+    .empty-state {
+      padding: 36px 20px;
+      text-align: center;
+      background: var(--neutral-50);
+      border: 1.5px dashed var(--neutral-200);
+      border-radius: var(--radius-lg);
+    }
+    .empty-icon {
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      background: var(--primary-light);
+      margin: 0 auto 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+    }
+    .empty-title { font-size: 15px; font-weight: 600; color: var(--neutral-700); margin-bottom: 6px; }
+    .empty-desc  { font-size: 13px; color: var(--neutral-400); margin-bottom: 16px; }
+    .variant-tag {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .6px;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-bottom: 14px;
+    }
+    .variant-tag.filled { background: #dbeafe; color: #1d4ed8; }
+    .variant-tag.empty  { background: var(--neutral-100); color: var(--neutral-400); }
+
+    /* ── Practice answer options ────────────────────────── */
+    .answer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .answer-option {
+      padding: 14px 16px;
+      border: 2px solid var(--neutral-200);
+      border-radius: var(--radius-md);
+      font-size: 16px;
+      font-weight: 600;
+      cursor: default;
+      background: var(--white);
+      text-align: center;
+      color: var(--neutral-700);
+    }
+    .answer-option.selected {
+      border-color: var(--primary);
+      background: var(--primary-light);
+      color: var(--primary);
+    }
+
+    /* ── Score display ──────────────────────────────────── */
+    .score-hero {
+      text-align: center;
+      padding: 28px 20px;
+      background: linear-gradient(145deg, var(--success-light) 0%, #f0fdf4 100%);
+      border: 1.5px solid #bbf7d0;
+      border-radius: var(--radius-xl);
+      margin-bottom: 20px;
+    }
+    .score-number {
+      font-size: 56px;
+      font-weight: 800;
+      color: #15803d;
+      letter-spacing: -2px;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .score-label {
+      font-size: 14px;
+      color: var(--neutral-500);
+      margin-bottom: 12px;
+    }
+    .score-cheer {
+      font-size: 17px;
+      font-weight: 700;
+      color: #15803d;
+      margin-bottom: 6px;
+    }
+    .score-meta {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      font-size: 13px;
+      color: var(--neutral-500);
+      margin-top: 10px;
+    }
+    .score-meta span strong { color: var(--neutral-800); }
+
+    /* ── Recommend card ─────────────────────────────────── */
+    .rec-card {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px;
+      background: var(--white);
+      border: 1px solid var(--neutral-200);
+      border-radius: var(--radius-md);
+      margin-bottom: 10px;
+    }
+    .rec-card:last-child { margin-bottom: 0; }
+    .rec-icon {
+      width: 42px; height: 42px;
+      flex-shrink: 0;
+      background: var(--primary-light);
+      border-radius: var(--radius-md);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      color: var(--primary);
+    }
+    .rec-body { flex: 1; min-width: 0; }
+    .rec-title { font-size: 14px; font-weight: 600; color: var(--neutral-800); margin-bottom: 2px; }
+    .rec-desc  { font-size: 12px; color: var(--neutral-400); }
+
+    /* ── Admin sidebar layout ───────────────────────────── */
+    .admin-layout { display: grid; grid-template-columns: 220px 1fr; gap: 20px; }
+    .admin-sidebar {
+      background: var(--white);
+      border: 1px solid var(--neutral-200);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      height: fit-content;
+    }
+    .admin-nav-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--neutral-600);
+      margin-bottom: 2px;
+      cursor: default;
+    }
+    .admin-nav-item.active {
+      background: var(--primary-light);
+      color: var(--primary);
+      font-weight: 600;
+    }
+    .admin-nav-group {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .7px;
+      text-transform: uppercase;
+      color: var(--neutral-400);
+      padding: 12px 12px 4px;
+    }
+
+    /* ── Inline status toggle ───────────────────────────── */
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--neutral-100);
+    }
+    .toggle-row:last-child { border-bottom: none; }
+    .toggle-label { font-size: 14px; color: var(--neutral-700); font-weight: 500; }
+    .toggle-desc  { font-size: 12px; color: var(--neutral-400); }
+    .toggle {
+      width: 40px; height: 22px;
+      border-radius: 11px;
+      position: relative;
+      flex-shrink: 0;
+      cursor: default;
+    }
+    .toggle.on  { background: var(--primary); }
+    .toggle.off { background: var(--neutral-300); }
+    .toggle::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: var(--white);
+      box-shadow: 0 1px 3px rgba(0,0,0,.2);
+    }
+    .toggle.on::after  { right: 3px; }
+    .toggle.off::after { left: 3px; }
+
+    /* ── Autosave note ──────────────────────────────────── */
+    .autosave {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--neutral-400);
+      padding: 5px 10px;
+      background: var(--neutral-50);
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--neutral-200);
+    }
+    .autosave-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--success);
+    }
+
+    /* ── History row ────────────────────────────────────── */
+    .history-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--neutral-100);
+    }
+    .history-row:last-child { border-bottom: none; }
+    .history-icon {
+      width: 38px; height: 38px;
+      border-radius: var(--radius-md);
+      background: var(--neutral-100);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    .history-body { flex: 1; min-width: 0; }
+    .history-title { font-size: 14px; font-weight: 600; color: var(--neutral-800); }
+    .history-meta  { font-size: 12px; color: var(--neutral-400); }
+    .history-score { font-size: 14px; font-weight: 700; }
+
+    /* ── Responsive ─────────────────────────────────────── */
+    @media (max-width: 800px) {
+      .grid-2, .grid-3, .grid-4, .grid-sidebar, .admin-layout {
+        grid-template-columns: 1fr;
+      }
+      .input-row { grid-template-columns: 1fr; }
+      .answer-grid { grid-template-columns: 1fr 1fr; }
+      .content { padding: 20px 16px 24px; }
+      .topbar { padding: 12px 16px; }
+      .page { padding: 16px 12px; }
+    }
+    @media (max-width: 480px) {
+      .answer-grid { grid-template-columns: 1fr; }
+      .score-number { font-size: 44px; }
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+
+  <div class="page-note">
+    <strong>UI Mockup</strong> — Ứng dụng học Toán tiểu học có AI · Public MVP Lớp 2 · Kiến trúc dữ liệu hỗ trợ Lớp 1–5 · Chưa có backend / logic thật
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       landing-screen
+       Trang chủ sau đăng nhập — hành động nhanh cho phụ huynh
+  ══════════════════════════════════════════════════════════ -->
+  <div class="screen">
+    <div class="screen-header">
+      <div class="screen-header-dot"></div>
+      <div class="screen-header-dot"></div>
+      <div class="screen-header-dot"></div>
+      <span class="screen-header-label">1 — Trang chủ sau đăng nhập</span>
+      <span class="screen-header-badge">Phụ huynh · Hành động nhanh</span>
+    </div>
+    <div class="screen-body">
+
+      <nav class="topbar" aria-label="App navigation">
+        <div class="topbar-brand">Toán<span>AI</span></div>
+        <div class="topbar-nav">
+          <span class="topbar-link active">Trang chủ</span>
+          <span class="topbar-link">Dashboard</span>
+          <span class="topbar-link">Hồ sơ</span>
+          <div class="topbar-avatar">MA</div>
+        </div>
+      </nav>
+
+      <div class="content">
+        <p class="page-title">Xin chào, chị Lan!</p>
+        <p class="page-subtitle">Bé Minh Anh · Lớp 2 · Hôm nay là Chủ nhật, 13/04/2026</p>
+
+        <!-- Bài đang làm dở -->
+        <div class="card-primary mb-16">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+            <div>
+              <div class="section-heading" style="color:#4f6ef7;margin-bottom:6px;">Đang làm dở</div>
+              <div style="font-size:16px;font-weight:700;color:var(--neutral-800);margin-bottom:4px;">Cộng có nhớ — 10 câu</div>
+              <div style="font-size:13px;color:var(--neutral-500);">Đã trả lời 5/10 câu · Bắt đầu lúc 08:12 hôm nay</div>
+            </div>
+            <button type="button" class="btn btn-primary">Tiếp tục làm bài →</button>
+          </div>
+          <div class="progress-wrap" style="margin-top:16px;margin-bottom:0;">
+            <div class="progress-meta"><span>Tiến độ</span><span>50%</span></div>
+            <div class="progress-track"><div class="progress-fill"></div></div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <!-- Hồ sơ học sinh quick view -->
+          <div class="card">
+            <div class="card-title">Hồ sơ học sinh</div>
+            <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;">
+              <div style="width:48px;height:48px;border-radius:50%;background:var(--primary-light);border:2px solid var(--primary);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:var(--primary);">MA</div>
+              <div>
+                <div style="font-size:15px;font-weight:700;color:var(--neutral-900);">Nguyễn Minh Anh</div>
+                <div style="font-size:13px;color:var(--neutral-400);">Lớp 2 · Cơ bản → Nâng cao</div>
+              </div>
+            </div>
+            <div style="font-size:13px;color:var(--neutral-500);margin-bottom:14px;">Mục tiêu: Làm chắc phép cộng/trừ có nhớ trong phạm vi 100</div>
+            <button type="button" class="btn btn-secondary btn-sm">Xem hồ sơ đầy đủ</button>
+          </div>
+
+          <!-- Bài gợi ý hôm nay -->
+          <div class="card">
+            <div class="card-title">Bài gợi ý hôm nay</div>
+            <div class="rec-card" style="margin-bottom:8px;">
+              <div class="rec-icon">✦</div>
+              <div class="rec-body">
+                <div class="rec-title">Cộng có nhớ — 10 câu</div>
+                <div class="rec-desc">Dựa trên lỗi gần nhất · Mức vừa</div>
+              </div>
+              <span class="badge badge-primary">Gợi ý</span>
+            </div>
+            <div class="rec-card" style="margin-bottom:14px;">
+              <div class="rec-icon" style="background:var(--warning-light);color:var(--warning);">○</div>
+              <div class="rec-body">
+                <div class="rec-title">Toán lời văn 1 bước — 5 câu</div>
+                <div class="rec-desc">Chủ đề yếu · Mức dễ</div>
+              </div>
+              <span class="badge badge-warning">Cần luyện</span>
+            </div>
+            <div class="btns">
+              <button type="button" class="btn btn-primary">Bắt đầu bài gợi ý</button>
+              <button type="button" class="btn btn-secondary">Tạo bài mới</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Variant A: Có dữ liệu — Bài gần đây -->
+        <div class="card">
+          <div style="margin-bottom:2px;"><span class="variant-tag filled">Variant A — có dữ liệu</span></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+            <div class="card-title" style="margin:0;">Bài gần đây</div>
+            <button type="button" class="btn btn-ghost btn-sm">Xem tất cả →</button>
+          </div>
+          <div class="history-row">
+            <div class="history-icon">➕</div>
+            <div class="history-body">
+              <div class="history-title">Cộng có nhớ</div>
+              <div class="history-meta">12/04 · 8 phút · Trắc nghiệm</div>
+            </div>
+            <div class="history-score" style="color:var(--success);">8/10</div>
+          </div>
+          <div class="history-row">
+            <div class="history-icon">➖</div>
+            <div class="history-body">
+              <div class="history-title">Trừ có nhớ</div>
+              <div class="history-meta">11/04 · 10 phút · Điền số</div>
+            </div>
+            <div class="history-score" style="color:var(--warning);">6/10</div>
+          </div>
+          <div class="history-row">
+            <div class="history-icon">📝</div>
+            <div class="history-body">
+              <div class="history-title">Toán có lời văn 1 bước</div>
+              <div class="history-meta">10/04 · 6 phút · Trắc nghiệm</div>
+            </div>
+            <div class="history-score" style="color:var(--danger);">4/10</div>
+          </div>
+        </div>
+
+        <!-- Variant B: Empty state -->
+        <div class="empty-state" style="margin-top:16px;">
+          <div><span class="variant-tag empty">Variant B — empty state</span></div>
+          <div class="empty-icon">📚</div>
+          <div class="empty-title">Chưa có bài nào được hoàn thành</div>
+          <div class="empty-desc">Tạo bài đầu tiên để bắt đầu theo dõi tiến bộ của con nhé.</div>
+          <button type="button" class="btn btn-primary">Tạo bài đầu tiên</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       practice-selection-screen
+       Màn hình chọn bài
+  ══════════════════════════════════════════════════════════ -->
+  <div class="screen">
+    <div class="screen-header">
+      <div class="screen-header-dot"></div>
+      <div class="screen-header-dot"></div>
+      <div class="screen-header-dot"></div>
+      <span class="screen-header-label">2 — Màn hình chọn bài</span>
+      <span class="screen-header-badge">Phụ huynh / Học sinh</span>
+    </div>
+    <div class="screen-body">
+      <nav class="topbar" aria-label="App navigation">
+        <div class="topbar-brand">Toán<span>AI</span></div>
+        <div class="topbar-nav">
+          <span class="topbar-link">Trang chủ</span>
+          <div class="topbar-avatar">MA</div>
+        </div>
+      </nav>
+
+      <div class="content">
+        <p class="page-title">Tạo bộ bài tập mới</p>
+        <p class="page-subtitle">Tuỳ chỉnh bài theo trình độ và chủ đề của con · MVP public: Lớp 2</p>
+
+        <div class="grid-sidebar">
+          <!-- Form cấu hình bài -->
+          <div>
+            <!-- Preset nhanh -->
+            <div class="card mb-16">
+              <div class="card-title">Chọn nhanh</div>
+              <div class="option-group">
+                <span class="option-pill selected">Luyện 10 câu</span>
+                <span class="option-pill">Luyện 5 phút</span>
+                <span class="option-pill">Ôn chủ đề yếu</span>
+              </div>
+            </div>
+
+            <!-- Cấu hình chi tiết -->
+            <div class="card mb-16">
+              <div class="card-title">Cấu hình chi tiết</div>
+              <div class="input-row">
+                <div class="field">
+                  <span class="field-label">Lớp học</span>
+                  <div class="select">Lớp 2 — đang mở public</div>
+                  <p class="field-hint">Dữ liệu hỗ trợ Lớp 1–5, chỉ bật Lớp 2</p>
+                </div>
+                <div class="field">
+                  <span class="field-label">Chủ đề</span>
+                  <div class="select">Cộng có nhớ</div>
+                </div>
+              </div>
+              <div class="input-row">
+                <div class="field">
+                  <span class="field-label">Số câu</span>
+                  <div class="option-group" style="margin-top:0;">
+                    <span class="option-pill">5 câu</span>
+                    <span class="option-pill selected">10 câu</span>
+                    <span class="option-pill">15 câu</span>
+                  </div>
+                </div>
+                <div class="field">
+                  <span class="field-label">Mức độ khó</span>
+                  <div class="option-group" style="margin-top:0;">
+                    <span class="option-pill">Dễ</span>
+                    <span class="option-pill selected">Vừa</span>
+                    <span class="option-pill">Khó</span>
+                  </div>
+                </div>
+              </div>
+              <div class="field">
+                <span class="field-label">Dạng bài</span>
+                <div class="option-group">
+                  <span class="option-pill selected">Trắc nghiệm</span>
+                  <span class="option-pill">Điền số</span>
+                  <span class="option-pill">Toán lời văn</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- CTA chính -->
+            <div class="btns">
+              <button type="button" class="btn btn-primary-lg">Tạo bài ngay →</button>
+              <button type="button" class="btn btn-secondary">Lưu cấu hình</button>
+            </div>
+          </div>
+
+          <!-- Sidebar: tóm tắt + xem trước -->
+          <div>
+            <div class="card mb-16">
+              <div class="card-title">Tóm tắt bộ bài</div>
+              <div style="display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--neutral-600);">
+                <div style="display:flex;justify-content:space-between;"><span>Lớp</span><strong style="color:var(--neutral-800);">Lớp 2</strong></div>
+                <div style="display:flex;justify-content:space-between;"><span>Chủ đề</span><strong style="color:var(--neutral-800);">Cộng có nhớ</strong></div>
+                <div style="display:flex;justify-content:space-between;"><span>Số câu</span><strong style="color:var(--neutral-800);">10 câu</strong></div>
+                <div style="display:flex;justify-content:space-between;"><span>Dạng bài</span><strong style="color:var(--neutral-800);">Trắc nghiệm</strong></div>
+                <div style="display:flex;justify-content:space-between;"><span>Mức độ</span><strong style="color:var(--neutral-800);">Vừa</strong></div>
+                <hr class="divider" style="margin:6px 0;">
+                <div style="display:flex;justify-content:space-between;"><span>Thời gian tạo</span><span class="badge badge-success">&lt; 10 giây</span></div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-title">Xem trước câu mẫu</div>
+              <div class="card-flat" style="margin-bottom:10px;">
+                <div style="font-size:11px;font-weight:600;color:var(--neutral-400);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Ví dụ · Trắc nghiệm</div>
+                <div style="font-size:16px;font-weight:700;color:var(--neutral-900);margin-bottom:10px;">36 + 27 = ?</div>
+                <div class="option-group">
+                  <span class="option-pill">A. 53</span>
+                  <span class="option-pill">B. 63</span>
+                  <span class="option-pill">C. 64</span>
+                  <span class="option-pill">D. 73</span>
+                </div>
+              </div>
+              <div class="card-flat">
+                <div style="font-size:11px;font-weight:600;color:var(--neutral-400);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Ví dụ · Điền số</div>
+                <div style="font-size:16px;font-weight:700;color:var(--neutral-900);margin-bottom:10px;">45 + ___ = 72</div>
+                <div class="input" style="max-width:140px;font-size:18px;font-weight:700;text-align:center;">27</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       practice-screen
+       Màn hình làm bài
+  ══════════════════════════════════════════════════════════ -->
+  <div class="screen">
+    <div class="screen-header">
+      <div class="screen-header-dot"></div>
+      <div class="screen-header-dot"></div>
+      <div class="screen-header-dot"></div>
+      <span class="screen-header-label">3 — Màn hình làm bài</span>
+      <span class="screen-header-badge">Học sinh · Lớp 2</span>
+    </div>
+    <div class="screen-body">
+
+      <nav class="topbar" aria-label="App navigation">
+        <div style="font-size:14px;font-weight:600;color:var(--neutral-700);">Cộng có nhớ</div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span class="autosave"><span class="autosave-dot"></span>Đáp án được lưu tự động</span>
+          <span class="badge badge-neutral">Câu 5 / 10</span>
+        </div>
+      </nav>
+
+      <div class="content">
+        <!-- Thanh tiến trình -->
+        <div class="progress-wrap">
+          <div class="progress-meta">
+            <span style="font-size:13px;font-weight:600;color:var(--neutral-700);">Câu 5 / 10</span>
+            <span>50%</span>
+          </div>
+          <div class="progress-track"><div class="progress-fill"></div></div>
+          <div class="progress-dots">
+            <div class="progress-dot done"></div>
+            <div class="progress-dot done"></div>
+            <div class="progress-dot done"></div>
+            <div class="progress-dot done"></div>
+            <div class="progress-dot current"></div>
+            <div class="progress-dot"></div>
+            <div class="progress-dot"></div>
+            <div class="progress-dot"></div>
+            <div class="progress-dot"></div>
+            <div class="progress-dot"></div>
+          </div>
+        </div>
+
+        <div class="content-center">
+
+          <!-- Variant A: Câu trắc nghiệm -->
+          <div class="mb-24">
+            <span class="variant-tag filled">Dạng bài · Trắc nghiệm</span>
+            <div class="card" style="margin-bottom:16px;">
+              <div style="font-size:13px;color:var(--neutral-400);margin-bottom:10px;">Cộng có nhớ · Mức vừa</div>
+              <div style="font-size:28px;font-weight:800;color:var(--neutral-900);letter-spacing:-1px;text-align:center;padding:12px 0;">34 + 18 = ?</div>
+            </div>
+            <div class="answer-grid">
+              <div class="answer-option">A.&nbsp; 42</div>
+              <div class="answer-option selected">B.&nbsp; 52</div>
+              <div class="answer-option">C.&nbsp; 53</div>
+              <div class="answer-option">D.&nbsp; 62</div>
+            </div>
+          </div>
+
+          <hr class="divider">
+
+          <!-- Variant B: Câu điền số -->
+          <div class="mb-24">
+            <span class="variant-tag filled">Dạng bài · Điền số</span>
+            <div class="card" style="margin-bottom:16px;">
+              <div style="font-size:13px;color:var(--neutral-400);margin-bottom:10px;">Cộng có nhớ · Tìm thành phần chưa biết</div>
+              <div style="font-size:28px;font-weight:800;color:var(--neutral-900);letter-spacing:-1px;text-align:center;padding:12px 0;">45 + <span style="border-bottom:3px solid var(--primary);min-width:48px;display:inline-block;"></span> = 72</div>
+            </div>
+            <div style="max-width:200px;margin:0 auto;">
+              <div class="input" style="font-size:22px;font-weight:700;text-align:center;padding:14px;">27</div>
+            </div>
+          </div>
+
+          <!-- Điều hướng -->
+          <div class="btns btns-center" style="padding-top:4px;">
+            <button type="button" class="btn btn-secondary">← Câu trước</button>
+            <button type="button" class="btn btn-secondary">Câu sau →</button>
+            <button type="button" class="btn btn-primary">Nộp bài</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       result-screen
+       Màn hình kết quả
+  ══════════════════════════════════════════════════════════ -->
+  <div class="screen">
+    <div class="screen-header">
+      <div class="screen-header-dot"></div>
+      <div class="screen-header-dot"></div>
+      <div class="screen-header-dot"></div>
+      <span class="screen-header-label">4 — Màn hình kết quả</span>
+      <span class="screen-header-badge">Học sinh · sau nộp bài</span>
+    </div>
+    <div class="screen-body">
+      <nav class="topbar" aria-label="App navigation">
+        <div class="topbar-brand">Toán<span>AI</span></div>
+        <div class="topbar-nav"><div class="topbar-avatar">MA</div></div>
+      </nav>
+
+      <div class="content">
+        <div class="content-center">
+
+          <!-- Score hero -->
+          <div class="score-hero">
+            <div class="score-number">8/10</div>
+            <div class="score-label">Điểm số · Cộng có nhớ</div>
+            <div class="score-cheer">Con đã làm rất tốt! Cố gắng thêm một chút nhé! ✨</div>
+            <div class="score-meta">
+              <span><strong>8</strong> câu đúng</span>
+              <span><strong>2</strong> câu sai</span>
+              <span><strong>12 phút</strong> làm bài</span>
+              <span><strong>80%</strong> accuracy</span>
+            </div>
+          </div>
+
+          <!-- Câu sai -->
+          <div class="card mb-16">
+            <div class="card-title">Câu làm sai — giải thích ngắn</div>
+            <div class="table-wrap">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Câu</th>
+                    <th>Con trả lời</th>
+                    <th>Đáp án đúng</th>
+                    <th>Gợi ý ngắn</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="badge badge-danger">Câu 3</span></td>
+                    <td><span style="text-decoration:line-through;color:var(--neutral-400);">41</span></td>
+                    <td><strong>51</strong></td>
+                    <td style="color:var(--neutral-600);">Con thử cộng hàng đơn vị trước nhé.</td>
+                  </tr>
+                  <tr>
+                    <td><span class="badge badge-danger">Câu 7</span></td>
+                    <td><span style="text-decoration:line-through;color:var(--neutral-400);">26</span></td>
+                    <td><strong>36</strong></td>
+                    <td style="color:var(--neutral-600);">Phép cộng luôn cho kết quả lớn hơn số ban đầu.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Gợi ý bài tiếp theo -->
+          <div class="card mb-16">
+            <div class="card-title">Gợi ý bài tiếp theo</div>
+            <p style="font-size:13px;color:var(--neutral-400);margin-bottom:12px;">Dựa trên kết quả vừa rồi, hệ thống gợi ý:</p>
+            <div class="rec-card">
+              <div class="rec-icon">➕</div>
+              <div class="rec-body">
+                <div class="rec-title">Cộng có nhớ — 5 câu — Mức dễ hơn</div>
+                <div class="rec-desc">Luyện lại để củng cố · Accuracy gần nhất: 80%</div>
+              </div>
+              <button type="button" class="btn btn-outline btn-sm">Bắt đầu</button>
+            </div>
+            <div class="rec-card">
+              <div class="rec-icon" style="background:var(--warning-light);color:var(--warning);">📝</div>
+              <div class="rec-body">
+                <div class="rec-title">Toán lời văn 1 bước — 5 câu</div>
+                <div class="rec-desc">Chủ đề cần cải thiện · Accuracy: 45%</div>
+              </div>
+              <button type="button" class="btn btn-secondary btn-sm">Xem</button>
+            </div>
+          </div>
+
+          <!-- CTA -->
+          <div class="btns btns-center">
+            <button type="button" class="btn btn-primary">Tạo bài gợi ý</button>
+            <button type="button" class="btn btn-secondary">Luyện lại bài này</button>
+            <button type="button" class="btn btn-ghost">Quay về trang chủ</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       parent-dashboard-screen
+       Dashboard phụ huynh — phân tích tiến bộ học tập
+  ══════════════════════════════════════════════════════════ -->
+  <div class="screen">
+    <div class="screen-header">
+      <div class="screen-header-dot"></div>
+      <div class="screen-header-dot"></div>
+      <div class="screen-header-dot"></div>
+      <span class="screen-header-label">5 — Dashboard phụ huynh</span>
+      <span class="screen-header-badge">Phụ huynh · Phân tích chi tiết</span>
+    </div>
+    <div class="screen-body">
+      <nav class="topbar" aria-label="App navigation">
+        <div class="topbar-brand">Toán<span>AI</span></div>
+        <div class="topbar-nav">
+          <span class="topbar-link">Trang chủ</span>
+          <span class="topbar-link active">Dashboard</span>
+          <span class="topbar-link">Hồ sơ</span>
+          <div class="topbar-avatar">MA</div>
+        </div>
+      </nav>
+
+      <div class="content">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:24px;">
+          <div>
+            <p class="page-title" style="margin-bottom:2px;">Báo cáo học tập</p>
+            <p class="page-subtitle" style="margin-bottom:0;">Bé Minh Anh · Tuần 15/04 – 21/04/2026</p>
+          </div>
+          <button type="button" class="btn btn-primary">Tạo bài cho hôm nay</button>
+        </div>
+
+        <!-- Variant A: Có dữ liệu -->
+        <div><span class="variant-tag filled">Variant A — có dữ liệu</span></div>
+
+        <!-- Stat cards -->
+        <div class="grid-4 mb-24" style="margin-top:10px;">
+          <div class="stat-card">
+            <div class="stat-label">Bài đã làm</div>
+            <div class="stat-value">5</div>
+            <div class="stat-sub">tuần này</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Accuracy TB</div>
+            <div class="stat-value stat-positive">76%</div>
+            <div class="stat-sub stat-positive">↑ 8% so tuần trước</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Thời gian TB</div>
+            <div class="stat-value">12m</div>
+            <div class="stat-sub">mỗi buổi</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Mục tiêu tuần</div>
+            <div class="stat-value stat-warning">3/5</div>
+            <div class="stat-sub stat-warning">buổi đạt mục tiêu</div>
+          </div>
+        </div>
+
+        <div class="grid-2 mb-16">
+          <!-- Biểu đồ -->
+          <div class="card">
+            <div class="card-title">Accuracy 7 ngày gần nhất</div>
+            <div class="chart-ph">
+              <div class="chart-ph-bars">
+                <div class="chart-bar" style="height:38px;"></div>
+                <div class="chart-bar" style="height:52px;"></div>
+                <div class="chart-bar accent" style="height:45px;"></div>
+                <div class="chart-bar" style="height:65px;"></div>
+                <div class="chart-bar accent" style="height:70px;"></div>
+                <div class="chart-bar" style="height:55px;"></div>
+                <div class="chart-bar accent" style="height:72px;"></div>
+              </div>
+              <div style="font-size:11px;color:var(--neutral-300);">T2 · T3 · T4 · T5 · T6 · T7 · CN</div>
+            </div>
+          </div>
+
+          <!-- Chủ đề mạnh / yếu -->
+          <div class="card">
+            <div class="card-title">Tiến bộ theo chủ đề</div>
+            <div class="skill-row">
+              <div class="skill-label-row">
+                <span class="skill-name">So sánh số</span>
+                <span class="skill-pct">91% <span class="badge badge-success" style="font-size:10px;">Mạnh</span></span>
+              </div>
+              <div class="skill-track"><div class="skill-fill success" style="width:91%"></div></div>
+            </div>
+            <div class="skill-row">
+              <div class="skill-label-row">
+                <span class="skill-name">Nhân / chia cơ bản</span>
+                <span class="skill-pct">83% <span class="badge badge-success" style="font-size:10px;">Mạnh</span></span>
+              </div>
+              <div class="skill-track"><div class="skill-fill success" style="width:83%"></div></div>
+            </div>
+            <div class="skill-row">
+              <div class="skill-label-row">
+                <span class="skill-name">Cộng có nhớ</span>
+                <span class="skill-pct">52% <span class="badge badge-warning" style="font-size:10px;">Cần luyện</span></span>
+              </div>
+              <div class="skill-track"><div class="skill-fill warning" style="width:52%"></div></div>
+            </div>
+            <div class="skill-row">
+              <div class="skill-label-row">
+                <span class="skill-name">Toán lời văn 1 bước</span>
+                <span class="skill-pct">45% <span class="badge badge-danger" style="font-size:10px;">Yếu</span></span>
+              </div>
+              <div class="skill-track"><div class="skill-fill danger" style="width:45%"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-2 mb-16">
+          <!-- Gợi ý bài tiếp -->
+          <div class="card-primary" style="border-radius:var(--radius-lg);padding:20px;">
+            <div class="card-title" style="color:var(--primary);">Gợi ý bài tiếp theo</div>
+            <p style="font-size:13px;color:var(--neutral-500);margin-bottom:14px;">Accuracy &lt; 50% ở 2 bài gần nhất → gợi ý luyện lại mức dễ</p>
+            <div class="rec-card" style="background:var(--white);">
+              <div class="rec-icon">➕</div>
+              <div class="rec-body">
+                <div class="rec-title">Cộng có nhớ — Mức dễ — 5 câu</div>
+                <div class="rec-desc">Củng cố trước khi lên mức vừa</div>
+              </div>
+            </div>
+            <div class="btns" style="margin-top:12px;">
+              <button type="button" class="btn btn-primary">Tạo bài gợi ý</button>
+            </div>
+          </div>
+
+          <!-- Lịch sử học -->
+          <div class="card">
+            <div class="card-title">Lịch sử học gần đây</div>
+            <div class="history-row">
+              <div class="history-icon">➕</div>
+              <div class="history-body">
+                <div class="history-title">Cộng có nhớ</div>
+                <div class="history-meta">12/04 · 12 phút · 80%</div>
+              </div>
+              <span class="badge badge-success">8/10</span>
+            </div>
+            <div class="history-row">
+              <div class="history-icon">➖</div>
+              <div class="history-body">
+                <div class="history-title">Trừ có nhớ</div>
+                <div class="history-meta">11/04 · 10 phút · 60%</div>
+              </div>
+              <span class="badge badge-warning">6/10</span>
+            </div>
+            <div class="history-row">
+              <div class="history-icon">📝</div>
+              <div class="history-body">
+                <div class="history-title">Toán lời văn 1 bước</div>
+                <div class="history-meta">10/04 · 6 phút · 40%</div>
+              </div>
+              <span class="badge badge-danger">4/10</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Variant B: Empty state dashboard -->
+        <div class="empty-state">
+          <div><span class="variant-tag empty">Variant B — empty state</span></div>
+          <div class="empty-icon">📊</div>
+          <div class="empty-title">Chưa đủ dữ liệu để tạo báo cáo</div>
+          <div class="empty-desc">Sau khi con hoàn thành ít nhất 3 buổi học, biểu đồ và thống kê sẽ hiện ở đây.</div>
+          <button type="button" class="btn btn-primary">Tạo bài đầu tiên</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       student-profile-screen
+       Màn hình hồ sơ học sinh
+  ══════════════════════════════════════════════════════════ -->
+  <div class="screen">
+    <div class="screen-header">
+      <div class="screen-header-dot"></div>
+      <div class="screen-header-dot"></div>
+      <div class="screen-header-dot"></div>
+      <span class="screen-header-label">6 — Hồ sơ học sinh</span>
+      <span class="screen-header-badge">Phụ huynh · Quản lý hồ sơ</span>
+    </div>
+    <div class="screen-body">
+      <nav class="topbar" aria-label="App navigation">
+        <div class="topbar-brand">Toán<span>AI</span></div>
+        <div class="topbar-nav">
+          <span class="topbar-link">Trang chủ</span>
+          <span class="topbar-link active">Hồ sơ</span>
+          <div class="topbar-avatar">MA</div>
+        </div>
+      </nav>
+
+      <div class="content">
+        <p class="page-title">Hồ sơ học sinh</p>
+        <p class="page-subtitle">Quản lý thông tin và mục tiêu học tập của con</p>
+
+        <div class="grid-sidebar">
+          <div>
+            <div class="card mb-16">
+              <div class="card-title">Thông tin cơ bản</div>
+              <div class="input-row">
+                <div class="field">
+                  <span class="field-label">Tên học sinh</span>
+                  <div class="input">Nguyễn Minh Anh</div>
+                </div>
+                <div class="field">
+                  <span class="field-label">Lớp học</span>
+                  <div class="select">Lớp 2</div>
+                </div>
+              </div>
+              <div class="input-row">
+                <div class="field">
+                  <span class="field-label">Ngày sinh</span>
+                  <div class="input">15/08/2018</div>
+                  <p class="field-hint">Tuỳ chọn</p>
+                </div>
+                <div class="field">
+                  <span class="field-label">Mức hiện tại</span>
+                  <div class="select">Cơ bản → Nâng cao</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card mb-16">
+              <div class="card-title">Mục tiêu học tập</div>
+              <div class="field">
+                <span class="field-label">Chủ đề đang tập trung</span>
+                <div class="select">Cộng có nhớ trong phạm vi 100</div>
+              </div>
+              <div class="field">
+                <span class="field-label">Số buổi học mục tiêu mỗi tuần</span>
+                <div class="option-group">
+                  <span class="option-pill">3 buổi</span>
+                  <span class="option-pill selected">5 buổi</span>
+                  <span class="option-pill">7 buổi</span>
+                </div>
+              </div>
+              <div class="field">
+                <span class="field-label">Ghi chú mục tiêu</span>
+                <div class="textarea">Con làm chắc các dạng cộng/trừ có nhớ trong phạm vi 100 trước khi bước sang lớp 3.</div>
+              </div>
+            </div>
+
+            <div class="btns">
+              <button type="button" class="btn btn-primary">Lưu thay đổi</button>
+              <button type="button" class="btn btn-secondary">Huỷ</button>
+            </div>
+          </div>
+
+          <!-- Sidebar: snapshot -->
+          <div>
+            <div class="card mb-16">
+              <div style="text-align:center;padding:8px 0 14px;">
+                <div style="width:64px;height:64px;border-radius:50%;background:var(--primary-light);border:3px solid var(--primary);margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;color:var(--primary);">MA</div>
+                <div style="font-size:16px;font-weight:700;color:var(--neutral-900);">Nguyễn Minh Anh</div>
+                <div style="font-size:13px;color:var(--neutral-400);">Lớp 2 · Đang học</div>
+              </div>
+              <hr class="divider" style="margin:0 0 14px">
+              <div style="display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--neutral-500);">
+                <div style="display:flex;justify-content:space-between;"><span>Bài đã làm</span><strong style="color:var(--neutral-800);">23 bài</strong></div>
+                <div style="display:flex;justify-content:space-between;"><span>Accuracy TB</span><strong style="color:var(--success);">74%</strong></div>
+                <div style="display:flex;justify-content:space-between;"><span>Học từ</span><strong style="color:var(--neutral-800);">01/03/2026</strong></div>
+              </div>
+            </div>
+            <div class="card-warning">
+              <div class="card-title" style="color:#92400e;">Chủ đề cần chú ý</div>
+              <ul style="font-size:13px;color:#78350f;padding-left:16px;line-height:1.8;">
+                <li>Toán lời văn 1 bước (45%)</li>
+                <li>Cộng có nhớ (52%)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       admin-content-screen
+       Màn hình quản trị nội dung nội bộ
+  ══════════════════════════════════════════════════════════ -->
+  <div class="screen">
+    <div class="screen-header">
+      <div class="screen-header-dot"></div>
+      <div class="screen-header-dot"></div>
+      <div class="screen-header-dot"></div>
+      <span class="screen-header-label">7 — Admin Content Screen</span>
+      <span class="screen-header-badge">Nội bộ · Quản trị curriculum / blueprint</span>
+    </div>
+    <div class="screen-body">
+
+      <nav class="topbar" aria-label="Admin navigation">
+        <div class="topbar-brand" style="color:var(--neutral-700);">ToánAI <span style="color:var(--neutral-400);font-size:13px;font-weight:400;">/ Admin</span></div>
+        <div class="topbar-nav">
+          <span class="badge badge-warning">Môi trường nội bộ</span>
+          <div class="topbar-avatar" style="background:var(--neutral-100);border-color:var(--neutral-300);color:var(--neutral-500);">AD</div>
+        </div>
+      </nav>
+
+      <div class="content">
+        <p class="page-title">Quản trị Curriculum</p>
+        <p class="page-subtitle">Cấu hình lớp học, chủ đề, kỹ năng, blueprint và release config · Runtime: Lớp 1–5 · Public hiện tại: Lớp 2</p>
+
+        <div class="admin-layout">
+          <!-- Sidebar nav -->
+          <nav class="admin-sidebar" aria-label="Admin sections">
+            <div class="admin-nav-group">Curriculum</div>
+            <div class="admin-nav-item active">Danh sách lớp</div>
+            <div class="admin-nav-item">Chủ đề</div>
+            <div class="admin-nav-item">Kỹ năng</div>
+            <div class="admin-nav-group">Content</div>
+            <div class="admin-nav-item">Question Blueprint</div>
+            <div class="admin-nav-item">Validator Rules</div>
+            <div class="admin-nav-item">Prompt Template</div>
+            <div class="admin-nav-group">Release</div>
+            <div class="admin-nav-item">Release Config</div>
+          </nav>
+
+          <!-- Main content -->
+          <div>
+            <!-- Lớp học -->
+            <div class="card mb-16">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+                <div class="card-title" style="margin:0;">Danh sách lớp — Lớp 1–5</div>
+                <button type="button" class="btn btn-primary btn-sm">+ Thêm lớp</button>
+              </div>
+              <div class="table-wrap">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Lớp</th>
+                      <th>Trạng thái public</th>
+                      <th>AI generation</th>
+                      <th>Số chủ đề</th>
+                      <th>Hành động</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><strong>Lớp 2</strong></td>
+                      <td><span class="badge badge-success">Bật</span></td>
+                      <td><div class="toggle on"></div></td>
+                      <td>5</td>
+                      <td><button type="button" class="btn btn-secondary btn-sm">Sửa</button></td>
+                    </tr>
+                    <tr>
+                      <td>Lớp 1</td>
+                      <td><span class="badge badge-neutral">Tắt</span></td>
+                      <td><div class="toggle off"></div></td>
+                      <td>4</td>
+                      <td><button type="button" class="btn btn-secondary btn-sm">Sửa</button></td>
+                    </tr>
+                    <tr>
+                      <td>Lớp 3</td>
+                      <td><span class="badge badge-neutral">Tắt</span></td>
+                      <td><div class="toggle off"></div></td>
+                      <td>0</td>
+                      <td><button type="button" class="btn btn-secondary btn-sm">Sửa</button></td>
+                    </tr>
+                    <tr>
+                      <td>Lớp 4</td>
+                      <td><span class="badge badge-neutral">Tắt</span></td>
+                      <td><div class="toggle off"></div></td>
+                      <td>0</td>
+                      <td><button type="button" class="btn btn-secondary btn-sm">Sửa</button></td>
+                    </tr>
+                    <tr>
+                      <td>Lớp 5</td>
+                      <td><span class="badge badge-neutral">Tắt</span></td>
+                      <td><div class="toggle off"></div></td>
+                      <td>0</td>
+                      <td><button type="button" class="btn btn-secondary btn-sm">Sửa</button></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Chủ đề -->
+            <div class="card mb-16">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+                <div class="card-title" style="margin:0;">Chủ đề — Lớp 2</div>
+                <button type="button" class="btn btn-secondary btn-sm">+ Thêm chủ đề</button>
+              </div>
+              <div class="table-wrap">
+                <table class="table">
+                  <thead>
+                    <tr><th>Tên chủ đề</th><th>Mã</th><th>Kỹ năng</th><th>Bật</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Cộng có nhớ</td>
+                      <td><code style="font-size:12px;background:var(--neutral-100);padding:2px 6px;border-radius:4px;">addition_with_carry</code></td>
+                      <td>3</td>
+                      <td><div class="toggle on"></div></td>
+                    </tr>
+                    <tr>
+                      <td>Trừ có nhớ</td>
+                      <td><code style="font-size:12px;background:var(--neutral-100);padding:2px 6px;border-radius:4px;">subtraction_with_borrow</code></td>
+                      <td>2</td>
+                      <td><div class="toggle on"></div></td>
+                    </tr>
+                    <tr>
+                      <td>Toán lời văn 1 bước</td>
+                      <td><code style="font-size:12px;background:var(--neutral-100);padding:2px 6px;border-radius:4px;">word_problem_one_step</code></td>
+                      <td>2</td>
+                      <td><div class="toggle on"></div></td>
+                    </tr>
+                    <tr>
+                      <td>Hình học cơ bản</td>
+                      <td><code style="font-size:12px;background:var(--neutral-100);padding:2px 6px;border-radius:4px;">basic_geometry</code></td>
+                      <td>1</td>
+                      <td><div class="toggle on"></div></td>
+                    </tr>
+                    <tr>
+                      <td>Đo lường cơ bản</td>
+                      <td><code style="font-size:12px;background:var(--neutral-100);padding:2px 6px;border-radius:4px;">basic_measurement</code></td>
+                      <td>2</td>
+                      <td><div class="toggle off"></div></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="grid-2 mb-16">
+              <!-- Question Blueprint -->
+              <div class="card">
+                <div class="card-title">Question Blueprint</div>
+                <p style="font-size:13px;color:var(--neutral-400);margin-bottom:12px;">Cấu hình khung sinh câu hỏi theo kỹ năng</p>
+                <div class="table-wrap">
+                  <table class="table">
+                    <thead>
+                      <tr><th>Kỹ năng</th><th>Dạng</th><th>Phạm vi số</th><th>Ver</th></tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td style="font-size:12px;">add_2digit_carry</td>
+                        <td><span class="badge badge-primary">MCQ</span></td>
+                        <td style="font-size:12px;">0–100</td>
+                        <td style="font-size:12px;">v2</td>
+                      </tr>
+                      <tr>
+                        <td style="font-size:12px;">add_2digit_carry</td>
+                        <td><span class="badge badge-neutral">Fill</span></td>
+                        <td style="font-size:12px;">0–100</td>
+                        <td style="font-size:12px;">v1</td>
+                      </tr>
+                      <tr>
+                        <td style="font-size:12px;">word_one_step</td>
+                        <td><span class="badge badge-neutral">Word</span></td>
+                        <td style="font-size:12px;">0–50</td>
+                        <td style="font-size:12px;">v1</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="btns" style="margin-top:12px;">
+                  <button type="button" class="btn btn-secondary btn-sm">Xem tất cả</button>
+                  <button type="button" class="btn btn-primary btn-sm">+ Thêm</button>
+                </div>
+              </div>
+
+              <!-- Validator Rules -->
+              <div class="card">
+                <div class="card-title">Validator Rules</div>
+                <p style="font-size:13px;color:var(--neutral-400);margin-bottom:12px;">Quy tắc kiểm tra câu hỏi trước khi phát hành</p>
+                <div style="display:flex;flex-direction:column;gap:2px;">
+                  <div class="toggle-row">
+                    <div><div class="toggle-label">Kiểm tra phạm vi số</div><div class="toggle-desc">Số phải nằm trong constraints của kỹ năng</div></div>
+                    <div class="toggle on"></div>
+                  </div>
+                  <div class="toggle-row">
+                    <div><div class="toggle-label">Kiểm tra đáp án chuẩn</div><div class="toggle-desc">Đáp án phải tính được từ phép tính</div></div>
+                    <div class="toggle on"></div>
+                  </div>
+                  <div class="toggle-row">
+                    <div><div class="toggle-label">Kiểm tra ngôn ngữ</div><div class="toggle-desc">Không quá 20 từ / câu</div></div>
+                    <div class="toggle on"></div>
+                  </div>
+                  <div class="toggle-row">
+                    <div><div class="toggle-label">Kiểm tra lời giải</div><div class="toggle-desc">Lời giải phải khớp đáp án</div></div>
+                    <div class="toggle on"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid-2 mb-16">
+              <!-- Prompt Template -->
+              <div class="card">
+                <div class="card-title">Prompt Template</div>
+                <p style="font-size:13px;color:var(--neutral-400);margin-bottom:12px;">Mẫu prompt cho AI generation và feedback</p>
+                <div class="table-wrap">
+                  <table class="table">
+                    <thead>
+                      <tr><th>Tên template</th><th>Mục đích</th><th>Phiên bản</th></tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td style="font-size:13px;">mcq_generation_v2</td>
+                        <td><span class="badge badge-primary">Sinh đề</span></td>
+                        <td style="font-size:12px;">v2</td>
+                      </tr>
+                      <tr>
+                        <td style="font-size:13px;">fill_explanation_v1</td>
+                        <td><span class="badge badge-neutral">Giải thích</span></td>
+                        <td style="font-size:12px;">v1</td>
+                      </tr>
+                      <tr>
+                        <td style="font-size:13px;">feedback_child_friendly_v1</td>
+                        <td><span class="badge badge-success">Feedback</span></td>
+                        <td style="font-size:12px;">v1</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="btns" style="margin-top:12px;">
+                  <button type="button" class="btn btn-secondary btn-sm">Xem / Sửa</button>
+                </div>
+              </div>
+
+              <!-- Release Config -->
+              <div class="card">
+                <div class="card-title">Release Config</div>
+                <p style="font-size:13px;color:var(--neutral-400);margin-bottom:12px;">Ánh xạ từ bảng <code style="font-size:12px;background:var(--neutral-100);padding:1px 5px;border-radius:3px;">grade_release_configs</code></p>
+                <div class="table-wrap">
+                  <table class="table">
+                    <thead>
+                      <tr><th>Lớp</th><th>Public</th><th>AI gen</th><th>Auto rec.</th><th>Rollout</th></tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td><strong>Lớp 2</strong></td>
+                        <td><span class="badge badge-success">Bật</span></td>
+                        <td><span class="badge badge-success">Bật</span></td>
+                        <td><span class="badge badge-success">Bật</span></td>
+                        <td><strong>100%</strong></td>
+                      </tr>
+                      <tr>
+                        <td>Lớp 1</td>
+                        <td><span class="badge badge-neutral">Tắt</span></td>
+                        <td><span class="badge badge-neutral">Bật</span></td>
+                        <td><span class="badge badge-neutral">Tắt</span></td>
+                        <td>0%</td>
+                      </tr>
+                      <tr>
+                        <td>Lớp 3</td>
+                        <td><span class="badge badge-neutral">Tắt</span></td>
+                        <td><span class="badge badge-neutral">Tắt</span></td>
+                        <td><span class="badge badge-neutral">Tắt</span></td>
+                        <td>0%</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="btns" style="margin-top:12px;">
+                  <button type="button" class="btn btn-primary btn-sm">Lưu thay đổi</button>
+                </div>
+              </div>
+            </div>
+
+          </div><!-- /.admin-main -->
+        </div><!-- /.admin-layout -->
+      </div>
+    </div>
+  </div>
+
+  <footer style="text-align:center;padding:16px 0 8px;font-size:12px;color:var(--neutral-400);">
+    UI Mockup — Ứng dụng học Toán tiểu học có AI · MVP Lớp 2 · Phiên bản mockup, chưa có backend hay logic thật
+  </footer>
+
+</main>
+</body>
+</html>
+

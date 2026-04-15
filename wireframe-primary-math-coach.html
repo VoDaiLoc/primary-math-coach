@@ -1,0 +1,910 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wireframe - Ứng dụng học Toán tiểu học có AI</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --line: #2f2f2f;
+      --line-soft: #7a7a7a;
+      --panel: #f8f8f8;
+      --panel-soft: #fcfcfc;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.45;
+    }
+
+    .wireframe-page {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+
+    .wireframe-note {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      padding: 10px 12px;
+      margin-bottom: 16px;
+      font-size: 14px;
+    }
+
+    .screen {
+      border: 2px solid var(--line);
+      margin-bottom: 20px;
+      background: var(--bg);
+    }
+
+    .screen-title {
+      margin: 0;
+      padding: 10px 12px;
+      font-size: 16px;
+      border-bottom: 2px solid var(--line);
+      background: #efefef;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .screen-body {
+      padding: 12px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border: 1px solid var(--line);
+      padding: 8px 10px;
+      margin-bottom: 12px;
+      background: var(--panel-soft);
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .topbar-group {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .row-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .stack {
+      display: grid;
+      gap: 12px;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      background: var(--panel-soft);
+      padding: 10px;
+      min-height: 70px;
+    }
+
+    .panel h3,
+    .panel h4 {
+      margin-top: 0;
+      margin-bottom: 8px;
+      font-size: 15px;
+    }
+
+    .muted {
+      color: #444444;
+      font-size: 13px;
+    }
+
+    .placeholder {
+      border: 1px dashed var(--line-soft);
+      min-height: 42px;
+      padding: 8px;
+      margin: 6px 0;
+      background: #f3f3f3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-size: 13px;
+    }
+
+    .placeholder.chart {
+      min-height: 140px;
+    }
+
+    .placeholder.table {
+      min-height: 170px;
+      justify-content: flex-start;
+      align-items: flex-start;
+    }
+
+    .list {
+      margin: 0;
+      padding-left: 18px;
+      font-size: 14px;
+    }
+
+    .list li {
+      margin: 4px 0;
+    }
+
+    .field {
+      margin-bottom: 8px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+
+    .input,
+    .select,
+    .textarea,
+    .chip,
+    .btn {
+      border: 1px solid var(--line);
+      background: #fff;
+      padding: 8px;
+      font-size: 14px;
+      width: 100%;
+    }
+
+    .textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+
+    .btn {
+      cursor: default;
+      text-align: center;
+      font-weight: 600;
+      background: #f0f0f0;
+      width: auto;
+      display: inline-block;
+      min-width: 120px;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+
+    .chip {
+      width: auto;
+      display: inline-block;
+      min-width: 88px;
+      text-align: center;
+      background: #fafafa;
+      margin: 4px 4px 0 0;
+    }
+
+    .progress {
+      border: 1px solid var(--line);
+      height: 18px;
+      background: #f0f0f0;
+      margin-bottom: 10px;
+      position: relative;
+    }
+
+    .progress-fill {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 48%;
+      background: #cfcfcf;
+      border-right: 1px solid var(--line);
+    }
+
+    .question-card {
+      border: 1px solid var(--line);
+      padding: 10px;
+      background: #fbfbfb;
+      margin-bottom: 10px;
+    }
+
+    .divider {
+      border-top: 1px solid var(--line-soft);
+      margin: 10px 0;
+    }
+
+    .inline-status {
+      display: inline-block;
+      border: 1px solid var(--line);
+      padding: 2px 8px;
+      font-size: 12px;
+      margin-left: 6px;
+      background: #f1f1f1;
+    }
+
+    .table-like {
+      border: 1px solid var(--line);
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      background: #fff;
+    }
+
+    .table-like th,
+    .table-like td {
+      border: 1px solid var(--line-soft);
+      padding: 6px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .footer-note {
+      border: 1px solid var(--line);
+      padding: 10px;
+      background: var(--panel);
+      font-size: 13px;
+    }
+
+    .empty-state {
+      border: 1px dashed var(--line-soft);
+      padding: 16px;
+      text-align: center;
+      background: #fafafa;
+      color: #555555;
+      font-size: 13px;
+      margin-bottom: 12px;
+    }
+
+    .example-mode {
+      border: 1px solid var(--line-soft);
+      border-left: 3px solid var(--line);
+      padding: 10px;
+      background: #f9f9f9;
+      margin-bottom: 10px;
+    }
+
+    .example-mode h4 {
+      margin: 0 0 8px;
+      font-size: 12px;
+      color: #444444;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .autosave-note {
+      font-size: 12px;
+      color: #555555;
+      border: 1px dashed var(--line-soft);
+      padding: 4px 8px;
+      display: inline-block;
+      background: #f5f5f5;
+      margin-top: 8px;
+    }
+
+    .feedback-positive {
+      border: 1px solid var(--line);
+      padding: 12px;
+      background: #f7f7f7;
+      font-size: 14px;
+      margin-bottom: 12px;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .section-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #555555;
+      border-bottom: 1px solid var(--line-soft);
+      margin: 0 0 8px;
+      padding-bottom: 3px;
+    }
+
+    .field-label {
+      display: block;
+      font-size: 13px;
+      margin: 0 0 4px;
+    }
+
+    @media (max-width: 900px) {
+      .row,
+      .row-3 {
+        grid-template-columns: 1fr;
+      }
+
+      .screen-title {
+        font-size: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="wireframe-page">
+    <section class="wireframe-note" aria-label="Ghi chú wireframe">
+      Wireframe đen trắng cho MVP ứng dụng học Toán tiểu học có AI. Public MVP tập trung lớp 2, nhưng bố cục nội dung thể hiện khả năng mở rộng lớp 1-5 theo cấu hình.
+    </section>
+
+    <!-- landing-screen -->
+    <section class="screen" aria-labelledby="landing-title">
+      <h2 id="landing-title" class="screen-title">1) Trang chủ sau đăng nhập – Hành động nhanh cho phụ huynh</h2>
+      <div class="screen-body">
+        <header class="topbar" aria-label="Header">
+          <div class="topbar-group">
+            <strong>Logo placeholder</strong>
+            <span class="inline-status">Vai trò: Phụ huynh</span>
+          </div>
+          <div class="topbar-group">
+            <span class="chip">Thông báo</span>
+            <span class="chip">Tài khoản</span>
+            <span class="chip">Đăng xuất</span>
+          </div>
+        </header>
+
+        <!-- Empty state: phụ huynh mới, chưa có dữ liệu -->
+        <div class="empty-state" aria-label="Trạng thái trống – phụ huynh mới">
+          [Empty state] Chào mừng! Con chưa có dữ liệu học tập. Hãy tạo bài đầu tiên hoặc cập nhật hồ sơ học sinh để bắt đầu.
+          <div class="btn-group" style="justify-content:center;margin-top:8px;">
+            <span class="btn">Tạo bài đầu tiên</span>
+            <span class="btn">Cập nhật hồ sơ</span>
+          </div>
+        </div>
+
+        <div class="row">
+          <article class="panel">
+            <h3>Hồ sơ học sinh</h3>
+            <p class="muted">Bé: Nguyễn Minh Anh | Lớp 2 | Mức: Cơ bản</p>
+            <p class="muted">Mục tiêu: Làm đúng phép cộng/trừ có nhớ trong phạm vi 100</p>
+            <div class="btn-group">
+              <span class="btn">Xem hồ sơ</span>
+            </div>
+          </article>
+          <article class="panel">
+            <h3>Bài đang làm dở</h3>
+            <p class="muted">Cộng có nhớ – câu 5/10 – còn 5 câu chưa nộp</p>
+            <p class="muted">Bắt đầu lúc 08:12 hôm nay</p>
+            <div class="btn-group">
+              <span class="btn">Tiếp tục làm bài</span>
+            </div>
+          </article>
+        </div>
+
+        <article class="panel">
+          <h3>Bài gợi ý hôm nay</h3>
+          <ul class="list">
+            <li>Luyện 10 câu – Cộng có nhớ (dựa trên lỗi gần nhất)</li>
+            <li>Luyện 5 phút – Trừ có nhớ</li>
+            <li>Ôn chủ đề yếu – Toán có lời văn 1 bước</li>
+          </ul>
+          <div class="btn-group">
+            <span class="btn">Bắt đầu bài gợi ý</span>
+            <span class="btn">Tạo bài mới</span>
+          </div>
+        </article>
+
+        <article class="panel">
+          <h3>Bài gần đây</h3>
+          <p class="muted">Xem nhanh kết quả các buổi vừa qua. Phân tích chi tiết → xem Dashboard phụ huynh (màn 5).</p>
+          <div class="placeholder table">Placeholder danh sách: Ngày học | Chủ đề | Số câu đúng | Thời gian làm | Trạng thái</div>
+          <!-- Empty state cho lịch sử -->
+          <div class="empty-state" aria-label="Trạng thái trống – chưa có lịch sử">[Empty state] Chưa có bài nào hoàn thành. Danh sách sẽ hiện sau khi con nộp bài đầu tiên.</div>
+        </article>
+      </div>
+    </section>
+
+    <!-- practice-selection-screen -->
+    <section class="screen" aria-labelledby="selection-title">
+      <h2 id="selection-title" class="screen-title">2) Màn hình chọn bài</h2>
+      <div class="screen-body">
+        <header class="topbar" aria-label="Header chọn bài">
+          <div class="topbar-group"><strong>Tạo bộ bài tập mới</strong></div>
+          <div class="topbar-group">
+            <span class="chip">Public MVP: Lớp 2</span>
+            <span class="chip">Kiến trúc dữ liệu: Lớp 1-5</span>
+          </div>
+        </header>
+
+        <div class="row-3">
+          <div class="field">
+            <p class="field-label">Chọn lớp</p>
+            <div class="select">Lớp 2 (đang mở public)</div>
+          </div>
+          <div class="field">
+            <p class="field-label">Chọn chủ đề</p>
+            <div class="select">Cộng có nhớ</div>
+          </div>
+          <div class="field">
+            <p class="field-label">Chọn số câu</p>
+            <div class="select">10 câu</div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <p class="field-label">Chọn mức độ khó</p>
+            <div class="select">Mức vừa</div>
+          </div>
+          <div class="field">
+            <p class="field-label">Chọn dạng bài</p>
+            <div class="select">Trắc nghiệm 4 lựa chọn</div>
+          </div>
+        </div>
+
+        <article class="panel">
+          <h3>Preset nhanh</h3>
+          <div class="btn-group">
+            <span class="btn">Luyện 5 phút</span>
+            <span class="btn">Luyện 10 câu</span>
+            <span class="btn">Ôn chủ đề yếu</span>
+          </div>
+        </article>
+
+        <div class="row">
+          <article class="panel">
+            <h3>Tóm tắt bộ bài</h3>
+            <ul class="list">
+              <li>Lớp: Lớp 2</li>
+              <li>Chủ đề: Cộng có nhớ</li>
+              <li>Dạng: Trắc nghiệm + điền số</li>
+              <li>Thời gian tạo dự kiến: &lt; 10 giây</li>
+            </ul>
+          </article>
+          <article class="panel">
+            <h3>Ràng buộc nội dung</h3>
+            <ul class="list">
+              <li>Phạm vi số phù hợp lớp 2</li>
+              <li>Không vượt ngoài chủ đề đã chọn</li>
+              <li>Có đáp án chuẩn và giải thích ngắn</li>
+            </ul>
+          </article>
+        </div>
+
+        <article class="panel">
+          <h3>Xem trước câu hỏi mẫu</h3>
+          <p class="muted">Ví dụ 1–2 câu sẽ được tạo theo cấu hình hiện tại (Cộng có nhớ – Lớp 2 – Mức vừa):</p>
+          <div class="example-mode">
+            <h4>Ví dụ câu 1 – Trắc nghiệm</h4>
+            <p><strong>36 + 27 = ?</strong></p>
+            <div class="btn-group">
+              <span class="chip">A. 53</span>
+              <span class="chip">B. 63</span>
+              <span class="chip">C. 64</span>
+              <span class="chip">D. 73</span>
+            </div>
+          </div>
+          <div class="example-mode">
+            <h4>Ví dụ câu 2 – Điền số</h4>
+            <p><strong>45 + ___ = 72</strong></p>
+            <div class="input" style="max-width:160px;">Nhập đáp án...</div>
+          </div>
+        </article>
+
+        <div class="btn-group">
+          <span class="btn">Tạo bài</span>
+          <span class="btn">Lưu preset</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- practice-screen -->
+    <section class="screen" aria-labelledby="practice-title">
+      <h2 id="practice-title" class="screen-title">3) Màn hình làm bài</h2>
+      <div class="screen-body">
+        <header class="topbar" aria-label="Header làm bài">
+          <div class="topbar-group">
+            <strong>Bài: Cộng có nhớ - 10 câu</strong>
+          </div>
+          <div class="topbar-group">
+            <span class="chip">Câu 5/10</span>
+            <span class="chip">Thời gian: 06:20</span>
+          </div>
+        </header>
+
+        <div class="progress" aria-label="Thanh tiến trình">
+          <div class="progress-fill"></div>
+        </div>
+
+        <!-- Ví dụ dạng trắc nghiệm -->
+        <div class="example-mode" aria-label="Ví dụ dạng trắc nghiệm">
+          <h4>Ví dụ dạng bài – Trắc nghiệm 4 lựa chọn</h4>
+          <article class="question-card" aria-label="Card câu hỏi trắc nghiệm">
+            <p><strong>34 + 18 = ?</strong></p>
+            <p class="muted">Câu 5/10 · Dạng: Trắc nghiệm</p>
+          </article>
+          <div class="btn-group">
+            <span class="chip">A. 42</span>
+            <span class="chip">B. 52</span>
+            <span class="chip">C. 53</span>
+            <span class="chip">D. 62</span>
+          </div>
+        </div>
+
+        <!-- Ví dụ dạng điền số -->
+        <div class="example-mode" aria-label="Ví dụ dạng điền số">
+          <h4>Ví dụ dạng bài – Điền số</h4>
+          <article class="question-card" aria-label="Card câu hỏi điền số">
+            <p><strong>45 + ___ = 72</strong></p>
+            <p class="muted">Câu 6/10 · Dạng: Điền số</p>
+          </article>
+          <div style="max-width:200px;">
+            <div class="input">Nhập đáp án...</div>
+          </div>
+        </div>
+
+        <p class="autosave-note">Đáp án được lưu tự động – con không sợ mất bài.</p>
+
+        <nav class="btn-group" aria-label="Điều hướng câu hỏi" style="margin-top:10px;">
+          <span class="btn">Câu trước</span>
+          <span class="btn">Câu sau</span>
+          <span class="btn">Nộp bài</span>
+        </nav>
+      </div>
+    </section>
+
+    <!-- result-screen -->
+    <section class="screen" aria-labelledby="result-title">
+      <h2 id="result-title" class="screen-title">4) Màn hình kết quả</h2>
+      <div class="screen-body">
+        <div class="row-3">
+          <article class="panel">
+            <h3>Tổng điểm</h3>
+            <div class="placeholder">8 / 10 điểm</div>
+          </article>
+          <article class="panel">
+            <h3>Số câu đúng</h3>
+            <div class="placeholder">8 câu</div>
+          </article>
+          <article class="panel">
+            <h3>Số câu sai</h3>
+            <div class="placeholder">2 câu</div>
+          </article>
+        </div>
+
+        <div class="feedback-positive" aria-label="Lời khen động viên">
+          Con đã làm rất tốt! 8/10 câu đúng là kết quả tuyệt vời. Cố gắng thêm một chút ở 2 câu còn lại nhé!
+        </div>
+
+        <article class="panel">
+          <h3>Danh sách câu sai</h3>
+          <table class="table-like" aria-label="Bảng câu sai">
+            <thead>
+              <tr>
+                <th>Câu</th>
+                <th>Đáp án của con</th>
+                <th>Đáp án đúng</th>
+                <th>Giải thích ngắn</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Câu 3</td>
+                <td>41</td>
+                <td>51</td>
+                <td>Con thử cộng hàng đơn vị trước nhé.</td>
+              </tr>
+              <tr>
+                <td>Câu 7</td>
+                <td>26</td>
+                <td>36</td>
+                <td>Bài này là phép cộng nên kết quả sẽ lớn hơn số ban đầu.</td>
+              </tr>
+            </tbody>
+          </table>
+        </article>
+
+        <article class="panel">
+          <h3>Gợi ý bài tiếp theo</h3>
+          <p class="muted">Dựa trên kết quả vừa rồi, hệ thống gợi ý:</p>
+          <ul class="list">
+            <li>Luyện lại Cộng có nhớ – mức dễ hơn (5 câu)</li>
+            <li>Ôn Toán có lời văn 1 bước (accuracy gần nhất: 45%)</li>
+          </ul>
+          <div class="btn-group">
+            <span class="btn">Luyện lại</span>
+            <span class="btn">Tạo bài gợi ý</span>
+            <span class="btn">Quay về trang chủ</span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- parent-dashboard-screen -->
+    <section class="screen" aria-labelledby="parent-dashboard-title">
+      <h2 id="parent-dashboard-title" class="screen-title">5) Dashboard phụ huynh – Phân tích tiến bộ học tập</h2>
+      <div class="screen-body">
+        <p class="muted section-label">Báo cáo học tập chi tiết theo thời gian – khác với Trang chủ (màn 1) chỉ hiện hành động nhanh</p>
+
+        <!-- Empty state: chưa đủ dữ liệu để vẽ báo cáo -->
+        <div class="empty-state" aria-label="Trạng thái trống – chưa đủ dữ liệu">[Empty state] Con chưa hoàn thành đủ bài để tạo báo cáo. Sau 3 buổi học, biểu đồ và thống kê sẽ hiện ở đây.</div>
+
+        <div class="row">
+          <article class="panel">
+            <h3>Tổng quan tiến bộ</h3>
+            <ul class="list">
+              <li>Số bài đã làm tuần này: 5</li>
+              <li>Tỷ lệ đúng trung bình: 76%</li>
+              <li>Thời gian học trung bình: 12 phút/buổi</li>
+              <li>Số buổi đạt mục tiêu tuần: 3/5</li>
+            </ul>
+          </article>
+          <article class="panel">
+            <h3>Biểu đồ accuracy theo ngày</h3>
+            <div class="placeholder chart">Biểu đồ accuracy 7 ngày gần nhất theo chủ đề</div>
+          </article>
+        </div>
+
+        <div class="row">
+          <article class="panel">
+            <h3>Chủ đề mạnh</h3>
+            <ul class="list">
+              <li>So sánh số (accuracy 91%)</li>
+              <li>Nhân/chia cơ bản (accuracy 83%)</li>
+            </ul>
+            <!-- Empty state cho chủ đề mạnh -->
+            <div class="empty-state" style="margin-top:8px;">[Empty state] Chưa đủ dữ liệu để xác định chủ đề mạnh.</div>
+          </article>
+          <article class="panel">
+            <h3>Chủ đề cần cải thiện</h3>
+            <ul class="list">
+              <li>Toán có lời văn 1 bước (accuracy 45%)</li>
+              <li>Cộng có nhớ (accuracy 52%)</li>
+            </ul>
+            <!-- Empty state cho chủ đề yếu -->
+            <div class="empty-state" style="margin-top:8px;">[Empty state] Chưa có chủ đề nào được phát hiện yếu.</div>
+          </article>
+        </div>
+
+        <div class="row">
+          <article class="panel">
+            <h3>Gợi ý bài tiếp theo</h3>
+            <p class="muted">Rule: accuracy &lt; 50% trong 2 bài gần nhất → gợi ý học lại mức dễ</p>
+            <p>Luyện lại chủ đề Cộng có nhớ – mức dễ (5 câu)</p>
+            <div class="btn-group">
+              <span class="btn">Tạo bài gợi ý</span>
+            </div>
+          </article>
+          <article class="panel">
+            <h3>Lịch sử học gần đây</h3>
+            <div class="placeholder table">Placeholder lịch sử: Ngày | Chủ đề | Điểm | Thời gian | Ghi chú</div>
+            <!-- Empty state cho lịch sử -->
+            <div class="empty-state" style="margin-top:8px;">[Empty state] Chưa có lịch sử học. Lịch sử sẽ hiện sau khi con hoàn thành bài đầu tiên.</div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- student-profile-screen -->
+    <section class="screen" aria-labelledby="profile-title">
+      <h2 id="profile-title" class="screen-title">6) Màn hình quản lý hồ sơ học sinh</h2>
+      <div class="screen-body">
+        <article class="panel">
+          <h3>Thông tin học sinh</h3>
+          <div class="row">
+            <div class="field">
+              <p class="field-label">Tên học sinh</p>
+              <div class="input">Nguyễn Minh Anh</div>
+            </div>
+            <div class="field">
+              <p class="field-label">Lớp học</p>
+              <div class="select">Lớp 2</div>
+            </div>
+          </div>
+
+          <div class="field">
+            <p class="field-label">Mục tiêu học</p>
+            <div class="textarea">Con làm chắc các dạng cộng/trừ có nhớ trong phạm vi 100.</div>
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <p class="field-label">Chủ đề đang tập trung</p>
+              <div class="select">Cộng có nhớ</div>
+            </div>
+            <div class="field">
+              <p class="field-label">Số buổi học mục tiêu mỗi tuần</p>
+              <div class="select">5 buổi/tuần</div>
+            </div>
+          </div>
+
+          <div class="field">
+            <p class="field-label">Mức hiện tại</p>
+            <div class="select">Cơ bản – đang nắm vững phép cộng có nhớ trong phạm vi 100</div>
+          </div>
+
+          <div class="btn-group">
+            <span class="btn">Cập nhật</span>
+            <span class="btn">Hủy</span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- admin-content-screen -->
+    <section class="screen" aria-labelledby="admin-title">
+      <h2 id="admin-title" class="screen-title">7) Màn hình quản trị nội dung nội bộ (wireframe)</h2>
+      <div class="screen-body">
+        <header class="topbar" aria-label="Header quản trị nội dung">
+          <div class="topbar-group"><strong>Quản trị curriculum / blueprint</strong></div>
+          <div class="topbar-group">
+            <span class="chip">Phạm vi runtime: Lớp 1-5</span>
+            <span class="chip">Public hiện tại: Lớp 2</span>
+          </div>
+        </header>
+
+        <div class="row">
+          <article class="panel">
+            <h3>Danh sách lớp</h3>
+            <table class="table-like" aria-label="Danh sách lớp">
+              <thead>
+                <tr>
+                  <th>Lớp</th>
+                  <th>Public</th>
+                  <th>AI generation</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Lớp 1</td>
+                  <td>Tắt</td>
+                  <td>Bật</td>
+                </tr>
+                <tr>
+                  <td>Lớp 2</td>
+                  <td>Bật</td>
+                  <td>Bật</td>
+                </tr>
+                <tr>
+                  <td>Lớp 3</td>
+                  <td>Tắt</td>
+                  <td>Tắt</td>
+                </tr>
+                <tr>
+                  <td>Lớp 4</td>
+                  <td>Tắt</td>
+                  <td>Tắt</td>
+                </tr>
+                <tr>
+                  <td>Lớp 5</td>
+                  <td>Tắt</td>
+                  <td>Tắt</td>
+                </tr>
+              </tbody>
+            </table>
+          </article>
+
+          <article class="panel">
+            <h3>Danh sách chủ đề</h3>
+            <div class="placeholder table">Placeholder danh sách chủ đề theo lớp: Cộng có nhớ, Trừ có nhớ, Toán lời văn 1 bước, Hình học cơ bản, Đo lường cơ bản</div>
+          </article>
+        </div>
+
+        <div class="row">
+          <article class="panel">
+            <h3>Danh sách kỹ năng</h3>
+            <div class="placeholder table">Placeholder danh sách kỹ năng: add_2d_1d_with_carry, subtract_with_borrow, word_problem_one_step...</div>
+          </article>
+          <article class="panel">
+            <h3>Điều khiển trạng thái</h3>
+            <div class="field">
+              <p class="field-label">Bật/tắt trạng thái public cho lớp</p>
+              <div class="select">[Toggle placeholder]</div>
+            </div>
+            <div class="field">
+              <p class="field-label">Bật/tắt AI generation</p>
+              <div class="select">[Toggle placeholder]</div>
+            </div>
+            <div class="btn-group">
+              <span class="btn">Lưu thay đổi</span>
+              <span class="btn">Xem bản nháp</span>
+            </div>
+          </article>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="row">
+          <article class="panel">
+            <h3>Question Blueprint</h3>
+            <p class="muted section-label">Cấu hình mẫu sinh đề theo kỹ năng</p>
+            <div class="placeholder table">Placeholder: skill_id | question_type | template_type | constraints_json | answer_logic | version | is_enabled</div>
+            <div class="btn-group">
+              <span class="btn">Thêm blueprint</span>
+              <span class="btn">Xem chi tiết</span>
+            </div>
+          </article>
+          <article class="panel">
+            <h3>Validator Rules</h3>
+            <p class="muted section-label">Quy tắc kiểm tra câu hỏi trước khi phát hành cho người dùng</p>
+            <ul class="list">
+              <li>Kiểm tra đúng chủ đề và kỹ năng</li>
+              <li>Kiểm tra phạm vi số phù hợp lớp</li>
+              <li>Kiểm tra đáp án chuẩn hợp lệ</li>
+              <li>Kiểm tra ngôn ngữ phù hợp độ tuổi</li>
+              <li>Kiểm tra lời giải khớp đáp án</li>
+            </ul>
+            <div class="placeholder" style="margin-top:8px;">Placeholder: rule_name | loại lỗi | áp dụng dạng bài | is_enabled</div>
+          </article>
+        </div>
+
+        <div class="row">
+          <article class="panel">
+            <h3>Prompt Template</h3>
+            <p class="muted section-label">Mẫu prompt cho AI generation và feedback</p>
+            <div class="placeholder table">Placeholder: template_id | mục đích (sinh đề / giải thích / feedback) | nội dung mẫu | version</div>
+            <div class="btn-group">
+              <span class="btn">Xem mẫu</span>
+              <span class="btn">Chỉnh sửa</span>
+            </div>
+          </article>
+          <article class="panel">
+            <h3>Release Config</h3>
+            <p class="muted section-label">Cấu hình phát hành theo lớp – ánh xạ từ bảng grade_release_configs</p>
+            <table class="table-like" aria-label="Release config theo lớp">
+              <thead>
+                <tr>
+                  <th>Lớp</th>
+                  <th>is_public</th>
+                  <th>AI gen</th>
+                  <th>Auto rec.</th>
+                  <th>Feedback</th>
+                  <th>Rollout</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Lớp 2</td>
+                  <td>Bật</td>
+                  <td>Bật</td>
+                  <td>Bật</td>
+                  <td>Đầy đủ</td>
+                  <td>100%</td>
+                </tr>
+                <tr>
+                  <td>Lớp 3</td>
+                  <td>Tắt</td>
+                  <td>Bật</td>
+                  <td>Tắt</td>
+                  <td>Cơ bản</td>
+                  <td>0%</td>
+                </tr>
+                <tr>
+                  <td>Lớp 1</td>
+                  <td>Tắt</td>
+                  <td>Tắt</td>
+                  <td>Tắt</td>
+                  <td>—</td>
+                  <td>0%</td>
+                </tr>
+              </tbody>
+            </table>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer-note">
+      Wireframe chỉ phục vụ review cấu trúc sản phẩm MVP. Không bao gồm backend, API, logic chấm điểm thật hay chức năng tương tác nâng cao.
+    </footer>
+  </main>
+</body>
+</html>

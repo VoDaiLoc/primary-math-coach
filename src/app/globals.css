@@ -1,0 +1,178 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── CSS design tokens — Oceanic-Azure palette ─────────────────────── */
+@layer base {
+  :root {
+    /* shadcn/ui semantic vars — HSL format */
+    --background: 220 50% 98%;
+    --foreground: 221 60% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 221 60% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 221 60% 15%;
+
+    /* Primary: Sapphire #0F52BA → HSL(216, 85%, 40%) */
+    --primary: 216 85% 40%;
+    --primary-foreground: 0 0% 100%;
+    --primary-light: 216 70% 95%;
+    /* Dark: Oceanic Azure #002B8C → HSL(221, 100%, 27%) */
+    --primary-dark: 221 100% 27%;
+
+    /* Secondary — soft blue-gray */
+    --secondary: 216 30% 94%;
+    --secondary-foreground: 216 40% 30%;
+
+    --muted: 216 25% 93%;
+    --muted-foreground: 216 20% 50%;
+
+    --accent: 216 70% 95%;
+    --accent-foreground: 216 85% 40%;
+
+    /* Danger */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 216 30% 88%;
+    --input: 216 30% 88%;
+    --ring: 216 85% 40%;
+    --radius: 0.625rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background: linear-gradient(160deg, #e8eef8 0%, #edf1fb 50%, #f0f4fc 100%);
+    background-attachment: fixed;
+    @apply text-foreground font-sans min-h-screen;
+  }
+
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: #e8eef8; border-radius: 99px; }
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #0F52BA, #002B8C);
+    border-radius: 99px;
+  }
+  ::-webkit-scrollbar-thumb:hover { background: #002B8C; }
+}
+
+/* ── Component helpers ─────────────────────────────────────────────── */
+@layer components {
+  /* Toggle switch */
+  .toggle-switch {
+    @apply relative inline-block w-10 h-[22px] rounded-full flex-shrink-0 cursor-default;
+  }
+  .toggle-switch::after {
+    content: "";
+    @apply absolute top-[3px] w-4 h-4 rounded-full bg-white shadow-sm transition-all duration-200;
+  }
+  .toggle-switch.on  { @apply bg-primary; }
+  .toggle-switch.on::after  { @apply right-[3px]; }
+  .toggle-switch.off { @apply bg-neutral-300; }
+  .toggle-switch.off::after { @apply left-[3px]; }
+
+  /* Progress fill for skill bars */
+  .skill-fill-success { @apply bg-success; }
+  .skill-fill-warning { @apply bg-warning; }
+  .skill-fill-danger  { @apply bg-danger; }
+
+  /* Chart bar */
+  .chart-bar-accent { background: linear-gradient(180deg, #0F52BA 0%, #002B8C 100%); opacity: 0.7; }
+
+  /* ── Gradient CTA button ── */
+  .btn-gradient {
+    background: linear-gradient(135deg, #0F52BA 0%, #002B8C 100%);
+    @apply text-white font-semibold rounded-[10px] px-5 py-2.5 text-sm
+           shadow-primary transition-all duration-200
+           hover:scale-[1.03] hover:shadow-primary-lg active:scale-[0.98];
+  }
+
+  /* ── Glass card ── */
+  .glass-card {
+    background: rgba(255, 255, 255, 0.65);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    @apply border border-white/70 rounded-[14px] shadow-md;
+  }
+
+  /* ── Shimmer loading skeleton ── */
+  .skeleton {
+    background: linear-gradient(90deg, #d5ddf0 25%, #e8eef8 50%, #d5ddf0 75%);
+    background-size: 200% 100%;
+    @apply animate-shimmer rounded-lg;
+  }
+
+  /* ── Smooth link transition ── */
+  .nav-link {
+    @apply relative px-3 py-1.5 rounded-[7px] text-sm font-medium
+           transition-all duration-200 ease-smooth;
+  }
+  .nav-link::after {
+    content: "";
+    @apply absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5
+           rounded-full bg-current transition-all duration-300;
+  }
+  .nav-link:hover::after { @apply w-3/4; }
+
+  /* ── Gradient text ── */
+  .gradient-text {
+    background: linear-gradient(135deg, #0F52BA 0%, #282888 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* ── Section card anim wrapper (stagger via style) ── */
+  .anim-card {
+    @apply animate-fade-in-up;
+  }
+}
+
+/* ── Utility overrides ─────────────────────────────────────────────── */
+@layer utilities {
+  .text-balance { text-wrap: balance; }
+
+  /* Focus ring — brand colored */
+  .focus-ring {
+    @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60
+           focus-visible:ring-offset-2 focus-visible:ring-offset-white;
+  }
+
+  /* Hover lift */
+  .hover-lift {
+    @apply transition-all duration-200 ease-smooth
+           hover:-translate-y-0.5 hover:shadow-lg;
+  }
+
+  /* Gradient border */
+  .gradient-border {
+    position: relative;
+  }
+  .gradient-border::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1.5px;
+    background: linear-gradient(135deg, #0F52BA, #282888);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+}

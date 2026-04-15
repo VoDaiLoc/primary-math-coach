@@ -1,0 +1,525 @@
+// ToánAI Primary Math Coach — Prisma Schema
+// DB: PostgreSQL
+// Designed for Next.js route handlers
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ── Enums ─────────────────────────────────────────────────────────────────────
+// Uppercase Prisma values map to lowercase domain types via db-mappers.ts
+
+enum DifficultyLevel {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum QuestionFormat {
+  MCQ
+  FILLIN
+}
+
+enum TopicStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum SubmissionStatus {
+  PENDING
+  GRADED
+  ABANDONED
+}
+
+enum MasteryStatus {
+  STRONG
+  DEVELOPING
+  WEAK
+}
+
+enum UserRole {
+  PARENT
+  TEACHER
+  ADMIN
+}
+
+enum ExamMode {
+  PRACTICE
+  TIMED_EXAM
+}
+
+// ── User ──────────────────────────────────────────────────────────────────────
+// Parent / teacher account. Students are linked to a User.
+
+model User {
+  id        String   @id @default(cuid())
+  authId    String?  @unique  // Supabase auth.users UUID
+  email     String   @unique
+  name      String
+  role      UserRole @default(PARENT)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  students Student[]
+
+  @@map("users")
+}
+
+// ── Student ───────────────────────────────────────────────────────────────────
+// The actual learner. Linked to one User (parent) and one Grade.
+
+model Student {
+  id         String   @id @default(cuid())
+  name       String
+  schoolName String?
+  schoolYear String   // "2025–2026"
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // ── Profile extras (optional, set by user via PATCH /api/students/[id]/profile)
+  weeklyGoalSessions   Int?    // e.g. 5 sessions/week
+  currentLevel         String? // "beginner" | "intermediate" | "advanced"
+  currentFocusTopicId  String? // FK to CurriculumTopic — soft reference (no cascade)
+
+  userId  String
+  user    User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  gradeId String
+  grade   Grade @relation(fields: [gradeId], references: [id])
+
+  exams       Exam[]
+  submissions Submission[]
+  progress    LearningProgress[]
+
+  @@index([userId])
+  @@index([gradeId])
+  @@map("students")
+}
+
+// ── Grade ─────────────────────────────────────────────────────────────────────
+// Represents lớp 1–5. isPublic controls whether the grade is accessible via app.
+
+model Grade {
+  id          String  @id @default(cuid())
+  level       Int     @unique // 1–5
+  displayName String  // "Lớp 2"
+  isPublic    Boolean @default(false)
+
+  students   Student[]
+  topics     CurriculumTopic[]
+  exams      Exam[]
+  bankItems  QuestionBankItem[]
+  candidates QuestionCandidate[]
+  examPapers ExamPaper[]
+
+  @@map("grades")
+}
+
+// ── Subject ───────────────────────────────────────────────────────────────────
+// "Toán" only for MVP. Extensible to other subjects later.
+
+model Subject {
+  id   String @id @default(cuid())
+  code String @unique // "math"
+  name String // "Toán"
+
+  topics CurriculumTopic[]
+
+  @@map("subjects")
+}
+
+// ── CurriculumTopic ───────────────────────────────────────────────────────────
+// A learning topic within a grade + subject, e.g. "Cộng có nhớ" in Lớp 2 Toán.
+
+model CurriculumTopic {
+  id           String      @id @default(cuid())
+  code         String      // unique within grade — see @@unique below
+  name         String      // "Cộng có nhớ"
+  description  String?
+  status       TopicStatus @default(ACTIVE)
+  displayOrder Int         @default(0)
+
+  gradeId   String
+  grade     Grade   @relation(fields: [gradeId], references: [id])
+  subjectId String
+  subject   Subject @relation(fields: [subjectId], references: [id])
+
+  skills     Skill[]
+  blueprints QuestionBlueprint[]
+  exams      Exam[]
+  progress   LearningProgress[]
+  bankItems  QuestionBankItem[]
+  candidates QuestionCandidate[]
+  examPapers ExamPaper[]
+
+  @@unique([gradeId, code])
+  @@index([gradeId])
+  @@index([subjectId])
+  @@map("curriculum_topics")
+}
+
+// ── Skill ─────────────────────────────────────────────────────────────────────
+// Fine-grained skill within a topic. Each topic has 1–N skills.
+
+model Skill {
+  id           String  @id @default(cuid())
+  code         String  // unique within topic
+  name         String
+  description  String?
+  displayOrder Int     @default(0)
+  isActive     Boolean @default(true)
+
+  topicId String
+  topic   CurriculumTopic @relation(fields: [topicId], references: [id])
+
+  blueprints QuestionBlueprint[]
+  bankItems  QuestionBankItem[]
+  candidates QuestionCandidate[]
+
+  @@unique([topicId, code])
+  @@index([topicId])
+  @@map("skills")
+}
+
+// ── QuestionBlueprint ─────────────────────────────────────────────────────────
+// AI generation config: how to produce questions for a topic (or specific skill).
+// constraints: JSON with numberRange, resultRange, etc.
+
+model QuestionBlueprint {
+  id             String         @id @default(cuid())
+  name           String
+  questionFormat QuestionFormat
+  version        String         @default("v1.0")
+  isEnabled      Boolean        @default(true)
+
+  // Difficulty distribution — must sum to 100
+  easyPercent   Int
+  mediumPercent Int
+  hardPercent   Int
+
+  // Optional JSON config for generation constraints
+  // { "numberRange": { "min": 1, "max": 99 }, "resultRange": { "min": 2, "max": 100 } }
+  constraints Json?
+
+  topicId String
+  topic   CurriculumTopic @relation(fields: [topicId], references: [id])
+  skillId String?
+  skill   Skill?          @relation(fields: [skillId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([topicId])
+  @@map("question_blueprints")
+}
+
+// ── ValidatorRule ─────────────────────────────────────────────────────────────
+// Rules applied to AI-generated questions before they're used in exams.
+// config: JSON with optional rule parameters.
+
+model ValidatorRule {
+  id          String  @id @default(cuid())
+  name        String  @unique // "range_check"
+  description String
+  isActive    Boolean @default(true)
+  scope       String  @default("global") // global | grade | topic | skill | blueprint
+  config      Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("validator_rules")
+}
+
+// ── PromptTemplate ────────────────────────────────────────────────────────────
+// LLM prompt templates used for question generation and student feedback.
+// slug is a stable machine-readable key.
+
+model PromptTemplate {
+  id          String  @id @default(cuid())
+  slug        String  @unique // "gen_question_addition"
+  name        String
+  version     String
+  modelTarget String
+  template    String  @db.Text
+  isActive    Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("prompt_templates")
+}
+
+
+
+// ── Exam ──────────────────────────────────────────────────────────────────────
+// A practice session created for a student, scoped to a topic.
+// Created when the student starts a session; immutable after creation.
+
+model Exam {
+  id               String          @id @default(cuid())
+  mode             ExamMode        @default(PRACTICE)
+  timeLimitMinutes Int?
+  questionCount    Int
+  difficulty       DifficultyLevel
+  format           QuestionFormat  // requested format — items may vary
+  createdAt        DateTime        @default(now())
+
+  studentId String
+  student   Student         @relation(fields: [studentId], references: [id])
+  topicId   String
+  topic     CurriculumTopic @relation(fields: [topicId], references: [id])
+  gradeId   String
+  grade     Grade           @relation(fields: [gradeId], references: [id])
+
+  items       ExamItem[]
+  submissions Submission[]
+
+  @@index([studentId])
+  @@index([topicId])
+  @@map("exams")
+}
+
+// ── ExamItem ──────────────────────────────────────────────────────────────────
+// Immutable snapshot of one question within an exam.
+// choices stored as JSON: [{ id, text, isCorrect }] — only for MCQ.
+
+model ExamItem {
+  id             String          @id @default(cuid())
+  orderIndex     Int
+  questionText   String          @db.Text
+  questionFormat QuestionFormat
+  difficulty     DifficultyLevel
+  correctAnswer  String
+  hint           String?
+  choices        Json?           // AnswerChoice[] for MCQ
+
+  // Optional ref to future question bank (AI-generated items have no source)
+  sourceQuestionId String?
+
+  examId String
+  exam   Exam   @relation(fields: [examId], references: [id], onDelete: Cascade)
+
+  answers SubmissionAnswer[]
+
+  @@index([examId])
+  @@map("exam_items")
+}
+
+// ── Submission ────────────────────────────────────────────────────────────────
+// A student's attempt at completing an exam.
+// score + accuracy are stored after grading (status → GRADED).
+
+model Submission {
+  id              String           @id @default(cuid())
+  status          SubmissionStatus @default(PENDING)
+  score           Int              @default(0)  // correct answer count
+  totalQuestions  Int
+  accuracy        Float            @default(0)  // 0–100
+  durationSeconds Int?
+  submittedAt     DateTime?
+  createdAt       DateTime         @default(now())
+
+  examId    String
+  exam      Exam    @relation(fields: [examId], references: [id])
+  studentId String
+  student   Student @relation(fields: [studentId], references: [id])
+
+  answers SubmissionAnswer[]
+
+  @@index([examId])
+  @@index([studentId])
+  @@map("submissions")
+}
+
+// ── SubmissionAnswer ──────────────────────────────────────────────────────────
+// One answer row per exam item within a submission.
+
+model SubmissionAnswer {
+  id          String  @id @default(cuid())
+  givenAnswer String
+  isCorrect   Boolean
+
+  submissionId String
+  submission   Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  examItemId   String
+  examItem     ExamItem   @relation(fields: [examItemId], references: [id])
+
+  @@index([submissionId])
+  @@map("submission_answers")
+}
+
+// ── LearningProgress ──────────────────────────────────────────────────────────
+// Denormalized per-student-per-topic progress. Updated on each graded submission.
+// One row per (studentId, topicId).
+
+model LearningProgress {
+  id              String        @id @default(cuid())
+  sessionCount    Int           @default(0)
+  totalQuestions  Int           @default(0)
+  correctCount    Int           @default(0)
+  accuracy        Float         @default(0)  // 0–100, kept in sync
+  mastery         MasteryStatus @default(WEAK)
+  lastPracticedAt DateTime?
+  updatedAt       DateTime      @updatedAt
+
+  studentId String
+  student   Student         @relation(fields: [studentId], references: [id])
+  topicId   String
+  topic     CurriculumTopic @relation(fields: [topicId], references: [id])
+
+  @@unique([studentId, topicId])
+  @@index([studentId])
+  @@map("learning_progress")
+}
+
+// ── QuestionBankItem ──────────────────────────────────────────────────────────
+// The permanent question bank. Source of truth for all content.
+// Choices stored as JSON [{ id, text, isCorrect }] for MCQ.
+
+enum QuestionSource {
+  MANUAL
+  IMPORTED
+  AI_GENERATED
+}
+
+enum ReviewStatus {
+  DRAFT
+  PENDING_REVIEW
+  APPROVED
+  REJECTED
+  ARCHIVED
+}
+
+model QuestionBankItem {
+  id           String          @id @default(cuid())
+  questionText String          @db.Text
+  format       QuestionFormat
+  difficulty   DifficultyLevel
+  correctAnswer String
+  hint          String?
+  choices       Json?           // [{ id, text, isCorrect }] for MCQ
+
+  source              QuestionSource @default(MANUAL)
+  reviewStatus        ReviewStatus   @default(DRAFT)
+  isActive            Boolean        @default(true)
+
+  // Origin metadata
+  modelUsed             String?
+  blueprintId           String?
+  promptTemplateVersion String?
+  validatorSummary      Json?          // { passed: bool, errors: string[] }
+
+  topicId String
+  topic   CurriculumTopic @relation(fields: [topicId], references: [id])
+  gradeId String
+  grade   Grade           @relation(fields: [gradeId], references: [id])
+  skillId String?
+  skill   Skill?          @relation(fields: [skillId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  examPaperItems ExamPaperItem[]
+
+  @@index([topicId])
+  @@index([gradeId])
+  @@index([reviewStatus])
+  @@index([source])
+  @@map("question_bank_items")
+}
+
+// ── QuestionCandidate ─────────────────────────────────────────────────────────
+// AI-generated candidates awaiting admin review. Not used in practice directly.
+// Approved candidates become QuestionBankItems.
+
+enum CandidateStatus {
+  PENDING_REVIEW
+  APPROVED
+  REJECTED
+}
+
+model QuestionCandidate {
+  id           String          @id @default(cuid())
+  questionText String          @db.Text
+  format       QuestionFormat
+  difficulty   DifficultyLevel
+  correctAnswer String
+  hint          String?
+  choices       Json?
+
+  // Generation metadata
+  modelUsed             String?
+  blueprintId           String?
+  blueprintVersion      String?
+  promptTemplateSlug    String?
+  validatorPassed       Boolean
+  validatorErrors       Json?   // string[]
+
+  candidateStatus CandidateStatus @default(PENDING_REVIEW)
+  reviewedAt      DateTime?
+  reviewedBy      String?   // admin name/id (nullable — no auth in MVP)
+
+  // If approved, points to the bank item created from this candidate
+  bankItemId String?
+
+  topicId String
+  topic   CurriculumTopic @relation(fields: [topicId], references: [id])
+  gradeId String
+  grade   Grade           @relation(fields: [gradeId], references: [id])
+  skillId String?
+  skill   Skill?          @relation(fields: [skillId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([topicId])
+  @@index([candidateStatus])
+  @@map("question_candidates")
+}
+
+// ── ExamPaper ─────────────────────────────────────────────────────────────────
+// Admin-assembled exam from pre-approved question bank items.
+
+model ExamPaper {
+  id          String  @id @default(cuid())
+  title       String
+  description String?
+  status      String  @default("draft") // draft | published | archived
+
+  gradeId  String
+  grade    Grade            @relation(fields: [gradeId], references: [id])
+  topicId  String?
+  topic    CurriculumTopic? @relation(fields: [topicId], references: [id])
+
+  createdBy String?   // admin label (no full auth in MVP)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  items ExamPaperItem[]
+
+  @@index([gradeId])
+  @@map("exam_papers")
+}
+
+// ── ExamPaperItem ─────────────────────────────────────────────────────────────
+
+model ExamPaperItem {
+  id           String @id @default(cuid())
+  orderIndex   Int
+  scoreWeight  Int    @default(1)
+
+  examPaperId        String
+  examPaper          ExamPaper        @relation(fields: [examPaperId], references: [id], onDelete: Cascade)
+  questionBankItemId String
+  questionBankItem   QuestionBankItem @relation(fields: [questionBankItemId], references: [id])
+
+  @@unique([examPaperId, questionBankItemId])
+  @@index([examPaperId])
+  @@map("exam_paper_items")
+}
